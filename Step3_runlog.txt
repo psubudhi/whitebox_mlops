@@ -1,0 +1,302 @@
+Current working directory: /content/drive/MyDrive/LJMU_Data_XAI/data
+Looking for config at: /content/drive/MyDrive/LJMU_Data_XAI/data/config.yaml
+Config file found: /content/drive/MyDrive/LJMU_Data_XAI/data/config.yaml
+Error loading config: while scanning a simple key
+  in "/content/drive/MyDrive/LJMU_Data_XAI/data/config.yaml", line 91, column 3
+could not find expected ':'
+  in "/content/drive/MyDrive/LJMU_Data_XAI/data/config.yaml", line 93, column 1
+Using default configuration
+STARTING TEST DATA DRIFT ANALYSIS
+==================================================
+============================================================
+ANALYZING DRIFT BETWEEN CHUNK MODELS AND TEST DATA
+============================================================
+Looking for test data at: train_test_data/test_data.csv
+Searching for test data in following locations:
+  - train_test_data/test_data.csv
+SUCCESS: Loaded test dataset from: train_test_data/test_data.csv
+Test dataset shape: (55, 12)
+Loading chunk models...
+SUCCESS: Loaded logistic_regression chunk 01
+SUCCESS: Loaded logistic_regression chunk 03
+SUCCESS: Loaded logistic_regression chunk 02
+SUCCESS: Loaded logistic_regression chunk 04
+SUCCESS: Loaded logistic_regression chunk 06
+SUCCESS: Loaded logistic_regression chunk 05
+SUCCESS: Loaded logistic_regression chunk 07
+SUCCESS: Loaded logistic_regression chunk 08
+SUCCESS: Loaded logistic_regression chunk 09
+SUCCESS: Loaded logistic_regression chunk 1
+SUCCESS: Loaded logistic_regression chunk 2
+SUCCESS: Loaded logistic_regression chunk 3
+SUCCESS: Loaded logistic_regression chunk 4
+SUCCESS: Loaded logistic_regression chunk 5
+SUCCESS: Loaded logistic_regression chunk 6
+SUCCESS: Loaded logistic_regression chunk 7
+SUCCESS: Loaded logistic_regression chunk 8
+SUCCESS: Loaded logistic_regression chunk 9
+SUCCESS: Loaded logistic_regression chunk 10
+SUCCESS: Loaded decision_tree chunk 01
+SUCCESS: Loaded decision_tree chunk 02
+SUCCESS: Loaded decision_tree chunk 03
+SUCCESS: Loaded decision_tree chunk 04
+SUCCESS: Loaded decision_tree chunk 05
+SUCCESS: Loaded decision_tree chunk 06
+SUCCESS: Loaded decision_tree chunk 07
+SUCCESS: Loaded decision_tree chunk 09
+SUCCESS: Loaded decision_tree chunk 08
+SUCCESS: Loaded decision_tree chunk 1
+SUCCESS: Loaded decision_tree chunk 2
+SUCCESS: Loaded decision_tree chunk 3
+SUCCESS: Loaded decision_tree chunk 4
+SUCCESS: Loaded decision_tree chunk 5
+SUCCESS: Loaded decision_tree chunk 6
+SUCCESS: Loaded decision_tree chunk 7
+SUCCESS: Loaded decision_tree chunk 8
+SUCCESS: Loaded decision_tree chunk 9
+SUCCESS: Loaded decision_tree chunk 10
+SUCCESS: Loaded neural_network chunk 01
+SUCCESS: Loaded neural_network chunk 02
+SUCCESS: Loaded neural_network chunk 03
+SUCCESS: Loaded neural_network chunk 04
+SUCCESS: Loaded neural_network chunk 05
+SUCCESS: Loaded neural_network chunk 06
+SUCCESS: Loaded neural_network chunk 07
+SUCCESS: Loaded neural_network chunk 08
+SUCCESS: Loaded neural_network chunk 09
+SUCCESS: Loaded neural_network chunk 1
+SUCCESS: Loaded neural_network chunk 2
+SUCCESS: Loaded neural_network chunk 3
+SUCCESS: Loaded neural_network chunk 4
+SUCCESS: Loaded neural_network chunk 5
+SUCCESS: Loaded neural_network chunk 6
+SUCCESS: Loaded neural_network chunk 7
+SUCCESS: Loaded neural_network chunk 8
+SUCCESS: Loaded neural_network chunk 9
+SUCCESS: Loaded neural_network chunk 10
+SUCCESS: Loaded svm chunk 01
+SUCCESS: Loaded svm chunk 02
+SUCCESS: Loaded svm chunk 04
+SUCCESS: Loaded svm chunk 03
+SUCCESS: Loaded svm chunk 06
+SUCCESS: Loaded svm chunk 05
+SUCCESS: Loaded svm chunk 07
+SUCCESS: Loaded svm chunk 08
+SUCCESS: Loaded svm chunk 09
+SUCCESS: Loaded svm chunk 1
+SUCCESS: Loaded svm chunk 2
+SUCCESS: Loaded svm chunk 3
+SUCCESS: Loaded svm chunk 4
+SUCCESS: Loaded svm chunk 5
+SUCCESS: Loaded svm chunk 6
+SUCCESS: Loaded svm chunk 7
+SUCCESS: Loaded svm chunk 8
+SUCCESS: Loaded svm chunk 9
+SUCCESS: Loaded svm chunk 10
+SUCCESS: Loaded lasso_regression chunk 01
+SUCCESS: Loaded lasso_regression chunk 02
+SUCCESS: Loaded lasso_regression chunk 03
+SUCCESS: Loaded lasso_regression chunk 04
+SUCCESS: Loaded lasso_regression chunk 05
+SUCCESS: Loaded lasso_regression chunk 07
+SUCCESS: Loaded lasso_regression chunk 06
+SUCCESS: Loaded lasso_regression chunk 08
+SUCCESS: Loaded lasso_regression chunk 09
+SUCCESS: Loaded lasso_regression chunk 1
+SUCCESS: Loaded lasso_regression chunk 2
+SUCCESS: Loaded lasso_regression chunk 3
+SUCCESS: Loaded lasso_regression chunk 4
+SUCCESS: Loaded lasso_regression chunk 5
+SUCCESS: Loaded lasso_regression chunk 6
+SUCCESS: Loaded lasso_regression chunk 7
+SUCCESS: Loaded lasso_regression chunk 8
+SUCCESS: Loaded lasso_regression chunk 9
+SUCCESS: Loaded lasso_regression chunk 10
+logistic_regression: 19 chunks loaded
+decision_tree: 19 chunks loaded
+neural_network: 19 chunks loaded
+svm: 19 chunks loaded
+lasso_regression: 19 chunks loaded
+SUCCESS: Found vectorizer and label encoder in logistic_regression/chunk_1.pkl
+Using text column: 'full_summary'
+Using label column: 'industry'
+Test features shape: (55, 1000)
+Test labels shape: (55,)
+
+Test data size: 55
+Number of features: 1000
+Number of classes: 16
+
+Analyzing logistic_regression...
+  Chunk 01: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 03: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 02: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 04: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 06: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 05: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 07: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 08: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 09: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 1: Data: 0.0933 (DRIFT) | Concept: 0.5818 (DRIFT)
+  Chunk 2: Data: 0.1033 (DRIFT) | Concept: 0.7273 (DRIFT)
+  Chunk 3: Data: 0.0958 (DRIFT) | Concept: 0.7273 (DRIFT)
+  Chunk 4: Data: 0.0966 (DRIFT) | Concept: 0.6545 (DRIFT)
+  Chunk 5: Data: 0.0898 (DRIFT) | Concept: 0.6000 (DRIFT)
+  Chunk 6: Data: 0.0926 (DRIFT) | Concept: 0.6364 (DRIFT)
+  Chunk 7: Data: 0.0911 (DRIFT) | Concept: 0.6727 (DRIFT)
+  Chunk 8: Data: 0.1070 (DRIFT) | Concept: 0.6182 (DRIFT)
+  Chunk 9: Data: 0.0998 (DRIFT) | Concept: 0.5818 (DRIFT)
+  Chunk 10: Data: 0.0991 (DRIFT) | Concept: 0.7091 (DRIFT)
+
+Analyzing decision_tree...
+  Chunk 01: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 02: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 03: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 04: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 05: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 06: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 07: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 09: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 08: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 1: Data: 0.0921 (DRIFT) | Concept: 0.5331 (DRIFT)
+  Chunk 2: Data: 0.1014 (DRIFT) | Concept: 0.7273 (DRIFT)
+  Chunk 3: Data: 0.1045 (DRIFT) | Concept: 0.7253 (DRIFT)
+  Chunk 4: Data: 0.0959 (DRIFT) | Concept: 0.4862 (DRIFT)
+  Chunk 5: Data: 0.0886 (DRIFT) | Concept: 0.7091 (DRIFT)
+  Chunk 6: Data: 0.0956 (DRIFT) | Concept: 0.7434 (DRIFT)
+  Chunk 7: Data: 0.0921 (DRIFT) | Concept: 0.5407 (DRIFT)
+  Chunk 8: Data: 0.1049 (DRIFT) | Concept: 0.5401 (DRIFT)
+  Chunk 9: Data: 0.0927 (DRIFT) | Concept: 0.5232 (DRIFT)
+  Chunk 10: Data: 0.0973 (DRIFT) | Concept: 0.6337 (DRIFT)
+
+Analyzing neural_network...
+  Chunk 01: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 02: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 03: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 04: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 05: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 06: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 07: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 08: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 09: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 1: Data: 0.0949 (DRIFT) | Concept: 0.0169 (DRIFT)
+  Chunk 2: Data: 0.1062 (DRIFT) | Concept: 0.0000 (OK)
+  Chunk 3: Data: 0.1018 (DRIFT) | Concept: 0.0195 (DRIFT)
+  Chunk 4: Data: 0.1043 (DRIFT) | Concept: 0.0000 (OK)
+  Chunk 5: Data: 0.0891 (DRIFT) | Concept: 0.0566 (DRIFT)
+  Chunk 6: Data: 0.0973 (DRIFT) | Concept: 0.0384 (DRIFT)
+  Chunk 7: Data: 0.0882 (DRIFT) | Concept: 0.0195 (DRIFT)
+  Chunk 8: Data: 0.1017 (DRIFT) | Concept: 0.0566 (DRIFT)
+  Chunk 9: Data: 0.0959 (DRIFT) | Concept: 0.0000 (OK)
+  Chunk 10: Data: 0.0944 (DRIFT) | Concept: 0.0000 (OK)
+
+Analyzing svm...
+  Chunk 01: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 02: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 04: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 03: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 06: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 05: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 07: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 08: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 09: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 1: Data: 0.0920 (DRIFT) | Concept: 0.6545 (DRIFT)
+  Chunk 2: Data: 0.1055 (DRIFT) | Concept: 0.7455 (DRIFT)
+  Chunk 3: Data: 0.0981 (DRIFT) | Concept: 0.6909 (DRIFT)
+  Chunk 4: Data: 0.0925 (DRIFT) | Concept: 0.6343 (DRIFT)
+  Chunk 5: Data: 0.0842 (DRIFT) | Concept: 0.6714 (DRIFT)
+  Chunk 6: Data: 0.0953 (DRIFT) | Concept: 0.7273 (DRIFT)
+  Chunk 7: Data: 0.0901 (DRIFT) | Concept: 0.7266 (DRIFT)
+  Chunk 8: Data: 0.1016 (DRIFT) | Concept: 0.7091 (DRIFT)
+  Chunk 9: Data: 0.0958 (DRIFT) | Concept: 0.6182 (DRIFT)
+  Chunk 10: Data: 0.0988 (DRIFT) | Concept: 0.7273 (DRIFT)
+
+Analyzing lasso_regression...
+  Chunk 01: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 02: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 03: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 04: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 05: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 07: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 06: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 08: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 09: No training data in chunk, skipping data drift
+Data: N/A | Concept: N/A
+  Chunk 1: Data: 0.0922 (DRIFT) | Concept: 0.0000 (OK)
+  Chunk 2: Data: 0.1080 (DRIFT) | Concept: 0.0526 (DRIFT)
+  Chunk 3: Data: 0.1072 (DRIFT) | Concept: 0.0000 (OK)
+  Chunk 4: Data: 0.1007 (DRIFT) | Concept: 0.0202 (DRIFT)
+  Chunk 5: Data: 0.0894 (DRIFT) | Concept: 0.0384 (DRIFT)
+  Chunk 6: Data: 0.0913 (DRIFT) | Concept: 0.0000 (OK)
+  Chunk 7: Data: 0.0915 (DRIFT) | Concept: 0.0000 (OK)
+  Chunk 8: Data: 0.1053 (DRIFT) | Concept: 0.0384 (DRIFT)
+  Chunk 9: Data: 0.0924 (DRIFT) | Concept: 0.0000 (OK)
+  Chunk 10: Data: 0.0923 (DRIFT) | Concept: 0.0384 (DRIFT)
+
+======================================================================
+DRIFT ANALYSIS SUMMARY - TEST DATA
+======================================================================
+Analysis Timestamp: 2025-10-11T15:05:34.262320
+Test Data Size: 55
+Total Chunks Analyzed: 95
+
+DATA DRIFT SUMMARY:
+  Mean Data Drift Score: 0.0966
+  Max Data Drift Score:  0.1080
+  Min Data Drift Score:  0.0842
+  Drift Detected in:     50 out of 50 comparisons
+
+CONCEPT DRIFT SUMMARY BY MODEL:
+  logistic_regression  | Mean: 0.6509 | Max: 0.7273 | Drifts: 10/10
+  decision_tree        | Mean: 0.6162 | Max: 0.7434 | Drifts: 10/10
+  neural_network       | Mean: 0.0207 | Max: 0.0566 | Drifts: 6/10
+  svm                  | Mean: 0.6905 | Max: 0.7455 | Drifts: 10/10
+  lasso_regression     | Mean: 0.0188 | Max: 0.0526 | Drifts: 5/10
+
+Drift results saved to: drift_reports/test_data_drift_report.pkl
+
+ANALYSIS COMPLETED SUCCESSFULLY

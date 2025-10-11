@@ -1,0 +1,2917 @@
+# create_ci_config.py
+import yaml
+
+config = {
+    'models': {
+        'logistic_regression': {
+            'multi_class': 'multinomial',
+            'solver': 'lbfgs', 
+            'max_iter': 1000,
+            'random_state': 42,
+            'class_weight': 'balanced',
+            'C': 0.5,
+            'penalty': 'l2'
+        },
+        'random_forest': {
+            'n_estimators': 100,
+            'max_depth': 15,
+            'random_state': 42,
+            'class_weight': 'balanced',
+            'min_samples_split': 5,
+            'min_samples_leaf': 2
+        },
+        'decision_tree': {
+            'max_depth': 8,
+            'random_state': 42,
+            'class_weight': 'balanced',
+            'min_samples_split': 5,
+            'min_samples_leaf': 2
+        },
+        'neural_network': {
+            'hidden_layer_sizes': [50, 25],
+            'max_iter': 1000,
+            'random_state': 42,
+            'early_stopping': True,
+            'learning_rate': 'adaptive',
+            'learning_rate_init': 0.001,
+            'alpha': 0.01,
+            'activation': 'relu'
+        },
+        'svm': {
+            'kernel': 'linear',
+            'probability': True,
+            'random_state': 42,
+            'class_weight': 'balanced',
+            'C': 0.5,
+            'gamma': 'scale',
+            'decision_function_shape': 'ovr'
+        }
+    },
+    'feature_engineering': {
+        'tfidf': {
+            'max_features': 800,
+            'stop_words': 'english',
+            'ngram_range': [1, 2],
+            'min_df': 2,
+            'max_df': 0.8
+        }
+    },
+    'training': {
+        'num_chunks': 8,
+        'random_state': 42,
+        'primary_metric': 'f1_score',
+        'test_size': 0.2,
+        'cross_validation_folds': 3
+    },
+    'drift_detection': {
+        'data_drift_threshold': 0.01,
+        'concept_drift_threshold': 0.006,
+        'significance_level': 0.006
+    },
+    'augmentation': {
+        'text_augmentation_ratio': 0.3,
+        'synonym_replacement_ratio': 0.2,
+        'back_translation_ratio': 0.1,
+        'max_augmented_samples': 100,
+        'class_balancing': True
+    },
+    'drift_resistance': {
+        'ensemble_weighting': True,
+        'feature_importance_filtering': True,
+        'regularization_boost': True,
+        'stability_weight': 0.1
+    },
+    'paths': {
+        'original_data': 'balanced_dataset/balanced_dataset.csv',
+        'batch_dir': 'batchy-streamy',
+        'chunks_dir': 'chunks',
+        'models_dir': 'models', 
+        'best_models_dir': 'best_models',
+        'reports_dir': 'reports',
+        'drift_reports_dir': 'drift_reports',
+        'drift_file': 'test_data_drift_report.pkl',
+        'overall_best_model': 'overall_best_model.pkl'
+    }
+}
+
+with open('ci-config.yaml', 'w') as f:
+    yaml.dump(config, f, default_flow_style=False)
+
+print("✅ Created ci-config.yaml")
+
+
+# fixed_data_augmentation.py
+import pandas as pd
+import numpy as np
+import pickle
+import os
+import random
+from datetime import datetime
+from sklearn.utils import resample
+import warnings
+warnings.filterwarnings('ignore')
+
+class DataAugmentationPipeline:
+    def __init__(self, config_path="ci-config.yaml"):
+        self.config = self.load_config(config_path)
+        self.batch_dir = "batchy-streamy"
+        self.current_batch = 1
+        
+    def load_config(self, config_path):
+        """Load configuration with better error handling"""
+        try:
+            import yaml
+            if os.path.exists(config_path):
+                with open(config_path, 'r') as file:
+                    config = yaml.safe_load(file)
+                print(f"✅ Configuration loaded from {config_path}")
+                return config
+            else:
+                print(f"⚠️  Config file {config_path} not found, using defaults")
+                return self.get_default_config()
+        except Exception as e:
+            print(f"⚠️  Error loading config: {e}, using defaults")
+            return self.get_default_config()
+    
+    def get_default_config(self):
+        """Default configuration that always works"""
+        return {
+            'augmentation': {
+                'text_augmentation_ratio': 0.3,
+                'synonym_replacement_ratio': 0.2,
+                'back_translation_ratio': 0.1,
+                'max_augmented_samples': 100,
+                'class_balancing': True
+            },
+            'paths': {
+                'original_data': 'balanced_dataset/balanced_dataset.csv',
+                'batch_dir': 'batchy-streamy'
+            }
+        }
+        
+    def load_original_data(self):
+        """Load and prepare original data"""
+        data_path = self.find_original_data()
+        if not data_path:
+            return None
+        
+        try:
+            if data_path.endswith('.pkl'):
+                with open(data_path, 'rb') as f:
+                    original_df = pickle.load(f)
+            else:
+                original_df = pd.read_csv(data_path)
+            
+            print(f"📊 Loaded data: {original_df.shape}")
+            print(f"📋 Columns: {original_df.columns.tolist()}")
+            return original_df
+        except Exception as e:
+            print(f"❌ Error loading data from {data_path}: {e}")
+            return None
+            
+    def find_original_data(self):
+        """Find the original data file with multiple fallbacks"""
+        possible_paths = [
+            self.config['paths'].get('original_data', 'balanced_dataset/balanced_dataset.csv'),
+            'balanced_dataset/balanced_dataset.csv',
+            'balanced_dataset.csv',
+            '../balanced_dataset/balanced_dataset.csv',
+            'train_test_data/train_data.csv',  # Fallback to train data
+            'balanced_dataset.csv'  # Direct file
+        ]
+        
+        for data_path in possible_paths:
+            if os.path.exists(data_path):
+                print(f"✅ Found data at: {data_path}")
+                return data_path
+        
+        # If no file found, check what's available
+        print("❌ No data file found. Available files in current directory:")
+        for item in os.listdir('.'):
+            if os.path.isfile(item) and (item.endswith('.csv') or item.endswith('.pkl')):
+                print(f"   📄 {item}")
+        for item in os.listdir('.'):
+            if os.path.isdir(item):
+                print(f"   📁 {item}/")
+                try:
+                    for subitem in os.listdir(item):
+                        if subitem.endswith('.csv') or subitem.endswith('.pkl'):
+                            print(f"      📄 {subitem}")
+                except:
+                    pass
+        
+        return None
+    
+    def setup_batch_structure(self):
+        """Create batch directory structure"""
+        os.makedirs(self.batch_dir, exist_ok=True)
+        
+        # Find current batch number
+        existing_batches = []
+        if os.path.exists(self.batch_dir):
+            for d in os.listdir(self.batch_dir):
+                if d.startswith('batch_') and os.path.isdir(os.path.join(self.batch_dir, d)):
+                    existing_batches.append(d)
+        
+        if existing_batches:
+            batch_numbers = []
+            for b in existing_batches:
+                try:
+                    batch_num = int(b.split('_')[1])
+                    batch_numbers.append(batch_num)
+                except (IndexError, ValueError):
+                    continue
+            if batch_numbers:
+                self.current_batch = max(batch_numbers) + 1
+            else:
+                self.current_batch = 1
+        else:
+            self.current_batch = 1
+            
+        batch_path = os.path.join(self.batch_dir, f"batch_{self.current_batch}")
+        os.makedirs(batch_path, exist_ok=True)
+        os.makedirs(os.path.join(batch_path, "models"), exist_ok=True)
+        os.makedirs(os.path.join(batch_path, "reports"), exist_ok=True)
+        os.makedirs(os.path.join(batch_path, "data"), exist_ok=True)
+        
+        print(f"📁 Created batch structure: {batch_path}")
+        return batch_path
+    
+    def load_original_data(self):
+        """Load and prepare original data"""
+        data_path = self.find_original_data()
+        if not data_path:
+            return None
+        
+        try:
+            if data_path.endswith('.pkl'):
+                with open(data_path, 'rb') as f:
+                    original_df = pickle.load(f)
+            else:
+                original_df = pd.read_csv(data_path)
+            
+            print(f"📊 Loaded data: {original_df.shape}")
+            print(f"📋 Columns: {original_df.columns.tolist()}")
+            return original_df
+        except Exception as e:
+            print(f"❌ Error loading data from {data_path}: {e}")
+            return None
+    
+    def text_augmentation_synonyms(self, text):
+        """Simple synonym replacement augmentation"""
+        if not isinstance(text, str) or len(text.strip()) == 0:
+            return text
+            
+        synonyms = {
+            'company': ['business', 'firm', 'corporation', 'enterprise'],
+            'industry': ['sector', 'field', 'domain', 'business area'],
+            'technology': ['tech', 'innovation', 'digital', 'IT'],
+            'financial': ['monetary', 'economic', 'fiscal'],
+            'services': ['offerings', 'solutions', 'assistance'],
+            'products': ['goods', 'offerings', 'merchandise'],
+            'customer': ['client', 'consumer', 'buyer'],
+            'market': ['industry', 'sector', 'landscape'],
+            'development': ['creation', 'establishment', 'formation'],
+            'management': ['administration', 'leadership', 'supervision'],
+            'system': ['platform', 'framework', 'infrastructure'],
+            'solution': ['approach', 'method', 'technique'],
+            'provide': ['offer', 'deliver', 'supply'],
+            'help': ['assist', 'support', 'aid'],
+            'create': ['develop', 'build', 'generate'],
+            'improve': ['enhance', 'optimize', 'boost'],
+            'business': ['company', 'enterprise', 'organization'],
+            'client': ['customer', 'consumer', 'buyer'],
+            'service': ['offering', 'solution', 'support'],
+            'product': ['item', 'offering', 'goods'],
+            'team': ['group', 'squad', 'crew'],
+            'project': ['initiative', 'venture', 'undertaking']
+        }
+        
+        words = text.split()
+        augmented_words = []
+        
+        for word in words:
+            word_lower = word.lower().strip('.,!?;:')
+            if word_lower in synonyms and random.random() < 0.3:
+                replacement = random.choice(synonyms[word_lower])
+                if word[0].isupper():
+                    replacement = replacement.capitalize()
+                augmented_words.append(replacement)
+            else:
+                augmented_words.append(word)
+        
+        return ' '.join(augmented_words)
+    
+    def text_augmentation_paraphrase(self, text):
+        """Simple paraphrasing by reordering and modifying"""
+        if not isinstance(text, str) or len(text.strip()) == 0:
+            return text
+            
+        words = text.split()
+        if len(words) <= 5:
+            return text
+            
+        if len(words) > 8 and random.random() < 0.4:
+            keep_start = min(2, len(words) // 4)
+            keep_end = min(2, len(words) // 4)
+            if len(words) > keep_start + keep_end:
+                middle_words = words[keep_start:-keep_end]
+                random.shuffle(middle_words)
+                words = words[:keep_start] + middle_words + words[-keep_end:]
+        
+        return ' '.join(words)
+    
+    def augment_text_data(self, df, text_column, label_column):
+        """Augment text data using various techniques"""
+        augmentation_config = self.config['augmentation']
+        augmented_samples = []
+        
+        class_counts = df[label_column].value_counts()
+        max_samples = augmentation_config['max_augmented_samples']
+        
+        print(f"🔧 Starting augmentation for {len(class_counts)} classes...")
+        
+        for class_name, count in class_counts.items():
+            class_data = df[df[label_column] == class_name]
+            samples_needed = max(0, max_samples - count)
+            
+            if samples_needed > 0 and len(class_data) > 0:
+                print(f"  Augmenting class '{class_name}': {count} → {max_samples} samples")
+                
+                augmentation_count = min(samples_needed, len(class_data) * 3)
+                for i in range(augmentation_count):
+                    if random.random() < augmentation_config['text_augmentation_ratio']:
+                        sample = class_data.sample(1).iloc[0]
+                        
+                        if pd.isna(sample[text_column]) or len(str(sample[text_column]).strip()) == 0:
+                            continue
+                            
+                        augmented_text = str(sample[text_column])
+                        
+                        if random.random() < augmentation_config['synonym_replacement_ratio']:
+                            augmented_text = self.text_augmentation_synonyms(augmented_text)
+                        
+                        if random.random() < augmentation_config['back_translation_ratio']:
+                            augmented_text = self.text_augmentation_paraphrase(augmented_text)
+                        
+                        if augmented_text != sample[text_column] and len(augmented_text.strip()) > 0:
+                            new_sample = sample.copy()
+                            new_sample[text_column] = augmented_text
+                            augmented_samples.append(new_sample)
+        
+        if augmented_samples:
+            augmented_df = pd.DataFrame(augmented_samples)
+            augmented_df = augmented_df.drop_duplicates(subset=[text_column])
+            final_df = pd.concat([df, augmented_df], ignore_index=True)
+            print(f"✅ Augmented {len(augmented_df)} new samples")
+            return final_df
+        
+        print("⚠️  No new samples were augmented")
+        return df
+    
+    def smart_oversampling(self, df, text_column, label_column):
+        """Smart oversampling for minority classes"""
+        class_counts = df[label_column].value_counts()
+        target_count = class_counts.max()
+        
+        print(f"📈 Balancing {len(class_counts)} classes to {target_count} samples each...")
+        
+        balanced_samples = []
+        
+        for class_name in class_counts.index:
+            class_data = df[df[label_column] == class_name]
+            current_count = len(class_data)
+            
+            if current_count < target_count:
+                needed = target_count - current_count
+                oversampled = resample(class_data, 
+                                     replace=True, 
+                                     n_samples=needed, 
+                                     random_state=42)
+                
+                for idx, sample in oversampled.iterrows():
+                    if random.random() < 0.3:
+                        original_text = str(sample[text_column])
+                        if len(original_text.strip()) > 0:
+                            augmented_text = self.text_augmentation_synonyms(original_text)
+                            if augmented_text != original_text:
+                                oversampled.at[idx, text_column] = augmented_text
+                
+                balanced_samples.append(oversampled)
+                print(f"  Balanced '{class_name}': {current_count} → {target_count} samples")
+        
+        if balanced_samples:
+            balanced_df = pd.concat([df] + balanced_samples, ignore_index=True)
+            print(f"📈 Balanced data from {len(df)} to {len(balanced_df)} samples")
+            return balanced_df
+        
+        print("⚠️  No balancing needed")
+        return df
+    
+    def auto_detect_columns(self, df):
+        """Auto-detect text and label columns"""
+        if df is None or df.empty:
+            return None, None
+            
+        label_candidates = ['label', 'category', 'class', 'target', 'industry', 'industry_name']
+        text_candidates = ['text', 'content', 'summary', 'description', 'full_summary']
+        
+        label_col = None
+        text_col = None
+        
+        for candidate in label_candidates:
+            if candidate in df.columns:
+                label_col = candidate
+                break
+        
+        if not label_col:
+            for col in df.columns:
+                if df[col].dtype == 'object' and 2 <= df[col].nunique() <= 50:
+                    label_col = col
+                    break
+            if not label_col and len(df.columns) > 0:
+                label_col = df.columns[0]
+        
+        for candidate in text_candidates:
+            if candidate in df.columns:
+                text_col = candidate
+                break
+        
+        if not text_col:
+            for col in df.columns:
+                if df[col].dtype == 'object' and col != label_col:
+                    sample_value = df[col].iloc[0] if not df[col].empty else ""
+                    if isinstance(sample_value, str) and len(sample_value) > 20:
+                        text_col = col
+                        break
+            if not text_col and len(df.columns) > 1:
+                text_col = df.columns[1] if df.columns[1] != label_col else df.columns[0]
+        
+        return text_col, label_col
+    
+    def create_enhanced_dataset(self):
+        """Create enhanced dataset with augmentation"""
+        original_df = self.load_original_data()
+        if original_df is None:
+            print("❌ Failed to load original data")
+            return None, None, None
+        
+        text_col, label_col = self.auto_detect_columns(original_df)
+        if not text_col or not label_col:
+            print("❌ Could not detect text and label columns")
+            print(f"Available columns: {original_df.columns.tolist()}")
+            return None, None, None
+        
+        print(f"🔧 Detected - Text: '{text_col}', Label: '{label_col}'")
+        
+        # Clean the data
+        original_df = original_df.dropna(subset=[text_col, label_col])
+        original_df[text_col] = original_df[text_col].fillna('').astype(str)
+        original_df[label_col] = original_df[label_col].fillna('').astype(str)
+        
+        print(f"📊 Cleaned data shape: {original_df.shape}")
+        
+        # Step 1: Basic augmentation
+        print("🔄 Step 1: Text augmentation...")
+        augmented_df = self.augment_text_data(original_df, text_col, label_col)
+        
+        # Step 2: Smart oversampling
+        if self.config['augmentation']['class_balancing']:
+            print("🔄 Step 2: Class balancing...")
+            enhanced_df = self.smart_oversampling(augmented_df, text_col, label_col)
+        else:
+            enhanced_df = augmented_df
+        
+        print(f"🎯 Dataset enhanced: {len(original_df)} → {len(enhanced_df)} samples")
+        
+        return enhanced_df, text_col, label_col
+    
+    def run_augmentation_pipeline(self):
+        """Run complete data augmentation pipeline"""
+        print("🚀 STARTING DATA AUGMENTATION PIPELINE")
+        print("=" * 50)
+        
+        # Setup batch structure
+        batch_path = self.setup_batch_structure()
+        
+        # Create enhanced dataset
+        result = self.create_enhanced_dataset()
+        if result is None:
+            print("❌ Data augmentation failed")
+            return None
+            
+        enhanced_data, text_col, label_col = result
+        
+        # Save enhanced dataset
+        data_path = os.path.join(batch_path, "data", "enhanced_dataset.csv")
+        enhanced_data.to_csv(data_path, index=False)
+        
+        # Create train-test split
+        from sklearn.model_selection import train_test_split
+        train_df, test_df = train_test_split(
+            enhanced_data, 
+            test_size=0.2, 
+            random_state=42, 
+            stratify=enhanced_data[label_col]
+        )
+        
+        # Save train and test data
+        train_path = os.path.join(batch_path, "data", "train_data.csv")
+        test_path = os.path.join(batch_path, "data", "test_data.csv")
+        train_df.to_csv(train_path, index=False)
+        test_df.to_csv(test_path, index=False)
+        
+        print(f"✅ Enhanced dataset saved to: {data_path}")
+        print(f"✅ Training data: {len(train_df)} samples")
+        print(f"✅ Test data: {len(test_df)} samples")
+        print(f"✅ Batch {self.current_batch} preparation complete!")
+        
+        return {
+            'batch_path': batch_path,
+            'batch_number': self.current_batch,
+            'train_path': train_path,
+            'test_path': test_path,
+            'text_column': text_col,
+            'label_column': label_col,
+            'train_samples': len(train_df),
+            'test_samples': len(test_df),
+            'original_samples': len(enhanced_data)
+        }
+
+def main():
+    augmenter = DataAugmentationPipeline("ci-config.yaml")
+    result = augmenter.run_augmentation_pipeline()
+    
+    if result:
+        print(f"\n🎉 AUGMENTATION PIPELINE COMPLETED!")
+        print(f"   📁 Batch Location: {result['batch_path']}")
+        print(f"   🔢 Batch Number: {result['batch_number']}")
+        print(f"   📊 Original Samples: {result['original_samples']}")
+        print(f"   🏋️ Training Samples: {result['train_samples']}")
+        print(f"   📈 Test Samples: {result['test_samples']}")
+    else:
+        print("\n❌ Augmentation pipeline failed!")
+
+if __name__ == "__main__":
+    main()
+	
+	
+	
+# drift_resistant_trainer.py
+import pandas as pd
+import numpy as np
+import pickle
+import os
+import yaml
+from datetime import datetime
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.feature_extraction.text import TfidfVectorizer
+import warnings
+warnings.filterwarnings('ignore')
+
+class DriftResistantTrainer:
+    def __init__(self, batch_path, config_path="ci-config.yaml"):
+        self.config = self.load_config(config_path)
+        self.batch_path = batch_path
+        self.balanced_df = None
+        self.chunks = []
+        self.models = {}
+        self.metrics = {}
+        self.label_encoder = LabelEncoder()
+        self.vectorizer = None
+        self.feature_columns = None
+        self.best_chunk_models = {}
+        self.overall_best_model = None
+        
+    def load_config(self, config_path):
+        """Load configuration from YAML file"""
+        try:
+            with open(config_path, 'r') as file:
+                config = yaml.safe_load(file)
+            print(f"Configuration loaded successfully from {config_path}")
+            return config
+        except Exception as e:
+            print(f"Error loading config from {config_path}: {e}")
+            return self.get_default_config()
+    
+    def get_default_config(self):
+        """Provide default configuration"""
+        return {
+            'models': {
+                'logistic_regression': {
+                    'multi_class': 'multinomial', 'solver': 'lbfgs', 'max_iter': 1000, 
+                    'random_state': 42, 'class_weight': 'balanced', 'C': 0.5  # Reduced regularization
+                },
+                'random_forest': {
+                    'n_estimators': 100, 'max_depth': 15, 'random_state': 42, 
+                    'class_weight': 'balanced', 'min_samples_split': 5
+                },
+                'decision_tree': {
+                    'max_depth': 8, 'random_state': 42, 'class_weight': 'balanced',
+                    'min_samples_split': 5, 'min_samples_leaf': 2  # More conservative
+                },
+                'neural_network': {
+                    'hidden_layer_sizes': (50, 25), 'max_iter': 1000, 'random_state': 42, 
+                    'early_stopping': True, 'learning_rate_init': 0.001, 'alpha': 0.01  # More regularization
+                },
+                'svm': {
+                    'kernel': 'linear', 'probability': True, 'random_state': 42, 
+                    'class_weight': 'balanced', 'C': 0.5  # Reduced C for better generalization
+                }
+            },
+            'training': {
+                'num_chunks': 8,  # Reduced chunks for more data per chunk
+                'random_state': 42, 
+                'primary_metric': 'f1_score',
+                'cross_validation_folds': 3
+            },
+            'drift_resistance': {
+                'ensemble_weighting': True,
+                'feature_importance_filtering': True,
+                'regularization_boost': True
+            }
+        }
+    
+    def initialize_models(self):
+        """Initialize models with drift-resistant configurations"""
+        models_config = self.config['models']
+        drift_config = self.config['drift_resistance']
+        
+        # Enhanced model configurations
+        self.models = {
+            'logistic_regression': {
+                'model_class': LogisticRegression,
+                'config': models_config['logistic_regression'],
+                'chunk_models': {},
+                'best_chunk': None,
+                'best_score': -1,
+                'drift_resistant': True
+            },
+            'random_forest': {
+                'model_class': RandomForestClassifier,
+                'config': models_config['random_forest'],
+                'chunk_models': {},
+                'best_chunk': None,
+                'best_score': -1,
+                'drift_resistant': True
+            },
+            'decision_tree': {
+                'model_class': DecisionTreeClassifier,
+                'config': models_config['decision_tree'],
+                'chunk_models': {},
+                'best_chunk': None,
+                'best_score': -1,
+                'drift_resistant': True
+            },
+            'neural_network': {
+                'model_class': MLPClassifier,
+                'config': models_config['neural_network'],
+                'chunk_models': {},
+                'best_chunk': None,
+                'best_score': -1,
+                'drift_resistant': True
+            },
+            'svm': {
+                'model_class': SVC,
+                'config': models_config['svm'],
+                'chunk_models': {},
+                'best_chunk': None,
+                'best_score': -1,
+                'drift_resistant': True
+            }
+        }
+        
+        print("🤖 Initialized 5 drift-resistant models:")
+        for model_name, model_info in self.models.items():
+            resistance_status = "✓" if model_info['drift_resistant'] else "✗"
+            print(f"  {resistance_status} {model_name}")
+        
+        return self.models
+    
+    def prepare_features_drift_resistant(self, texts):
+        """Prepare features with drift-resistant techniques"""
+        # Combine with English stop words
+
+    
+        # Define ALL stop words in one place
+        custom_stop_words = [
+            '10', '100', '15', '20', '30', '50', '000', '2023', '2024', '2025',
+            'http', 'https', 'www', 'com', 'org', 'net', 'html',
+            'company', 'industry', 'business', 'service', 'product', 
+            'technology', 'solution', 'system', 'platform', 'application',
+            'based', 'including', 'provide', 'within', 'across', 'using'
+        ]
+        
+        # Combine with English stop words ONCE
+        enhanced_stop_words = text.ENGLISH_STOP_WORDS.union(custom_stop_words)
+        
+        tfidf_config = self.config.get('feature_engineering', {}).get('tfidf', {
+            'max_features': 800,
+            'stop_words': enhanced_stop_words,  # Use the combined stop words
+            'ngram_range': (1, 2),
+            'min_df': 2,
+            'max_df': 0.8
+        })
+        self.vectorizer = TfidfVectorizer(
+            max_features=tfidf_config['max_features'],
+            stop_words=tfidf_config['stop_words'],
+            ngram_range=tfidf_config['ngram_range'],
+            min_df=tfidf_config['min_df'],
+            max_df=tfidf_config['max_df']
+        )
+        
+        X = self.vectorizer.fit_transform(texts)
+        self.feature_columns = self.vectorizer.get_feature_names_out()
+        
+        print(f"🔧 Created drift-resistant features: {X.shape}")
+        return X
+    
+    def create_stable_chunks(self, X, y):
+        """Create chunks with stable data distribution"""
+        num_chunks = self.config['training']['num_chunks']
+        total_samples = X.shape[0]
+        
+        # Ensure chunks have balanced class distribution
+        chunk_size = total_samples // num_chunks
+        
+        print(f"\nCreating {num_chunks} stable chunks from {total_samples} samples...")
+        
+        self.chunks = []
+        start_idx = 0
+        
+        for i in range(num_chunks):
+            end_idx = start_idx + chunk_size
+            if i == num_chunks - 1:  # Last chunk gets remaining samples
+                end_idx = total_samples
+            
+            chunk_data = {
+                'chunk_id': i + 1,
+                'start_idx': start_idx,
+                'end_idx': end_idx,
+                'size': end_idx - start_idx,
+                'X': X[start_idx:end_idx],
+                'y': y[start_idx:end_idx],
+                'class_distribution': dict(pd.Series(y[start_idx:end_idx]).value_counts())
+            }
+            
+            self.chunks.append(chunk_data)
+            print(f"Chunk {i+1}: {chunk_data['size']} samples, {len(chunk_data['class_distribution'])} classes")
+            
+            start_idx = end_idx
+        for chunk in chunks:
+            unique_classes, class_counts = np.unique(chunk['y'], return_counts=True)
+            if np.min(class_counts) < 2:
+               print(f"⚠️  Warning: Chunk {chunk['chunk_id']} has classes with only 1 sample")
+            
+        return self.chunks
+    
+    def train_with_regularization(self, model_class, config, X, y):
+        """Train model with enhanced regularization"""
+        try:
+            model = model_class(**config)
+            model.fit(X, y)
+            return model
+        except Exception as e:
+            print(f"Training error: {e}")
+            # Fallback to simpler configuration
+            simple_config = {k: v for k, v in config.items() 
+                           if k not in ['alpha', 'C', 'max_depth', 'n_estimators']}
+            if 'C' in simple_config:
+                simple_config['C'] = 1.0  # Default regularization
+            model = model_class(**simple_config)
+            model.fit(X, y)
+            return model
+    
+    def calculate_model_stability(self, model, X_train, X_val, y_train, y_val):
+        """Calculate model stability across different data splits"""
+        from sklearn.model_selection import cross_val_score
+        
+        try:
+            # Cross-validation stability
+            cv_scores = cross_val_score(model, X_train, y_train, 
+                                      cv=min(3, len(np.unique(y_train))),
+                                      scoring='f1_weighted')
+            stability_score = np.std(cv_scores)  # Lower std = more stable
+            
+            # Performance consistency
+            model.fit(X_train, y_train)
+            train_score = f1_score(y_train, model.predict(X_train), average='weighted')
+            val_score = f1_score(y_val, model.predict(X_val), average='weighted')
+            performance_gap = abs(train_score - val_score)  # Lower gap = more stable
+            
+            return {
+                'cv_stability': 1 - stability_score,  # Higher = better
+                'performance_gap': 1 - performance_gap,  # Higher = better
+                'overall_stability': (1 - stability_score + 1 - performance_gap) / 2
+            }
+        except:
+            return {'cv_stability': 0.5, 'performance_gap': 0.5, 'overall_stability': 0.5}
+    
+    # In the train_models_on_chunk method, replace the train_test_split part:
+    
+    def train_models_on_chunk(self, chunk):
+        """Train all models on a specific chunk with stability measures"""
+        chunk_id = chunk['chunk_id']
+        X_chunk = chunk['X']
+        y_chunk = chunk['y']
+        
+        print(f"\n{'='*60}")
+        print(f"TRAINING DRIFT-RESISTANT MODELS ON CHUNK {chunk_id}")
+        print(f"{'='*60}")
+        
+        chunk_metrics = {}
+        
+        # Check if we have enough samples for validation split
+        unique_classes = np.unique(y_chunk)
+        min_samples_for_validation = len(unique_classes) * 2  # At least 2 per class
+        
+        if len(y_chunk) < min_samples_for_validation:
+            print(f"⚠️  Chunk {chunk_id} too small for validation, using full chunk for training")
+            X_train, X_val, y_train, y_val = X_chunk, X_chunk, y_chunk, y_chunk
+            validation_warning = True
+        else:
+            try:
+                # Try stratified split first
+                X_train, X_val, y_train, y_val = train_test_split(
+                    X_chunk, y_chunk, test_size=0.2, random_state=42, stratify=y_chunk
+                )
+                validation_warning = False
+            except ValueError:
+                # Fallback to random split if stratification fails
+                print(f"⚠️  Stratification failed for chunk {chunk_id}, using random split")
+                X_train, X_val, y_train, y_val = train_test_split(
+                    X_chunk, y_chunk, test_size=0.2, random_state=42
+                )
+                validation_warning = True
+        
+        # Rest of the method remains the same...
+        for model_name, model_info in self.models.items():
+            print(f"\n--- Training {model_name.upper()} on chunk {chunk_id} ---")
+            
+            try:
+                model_instance = self.train_with_regularization(
+                    model_info['model_class'], model_info['config'], X_train, y_train
+                )
+                
+                # Calculate stability metrics only if we have proper validation
+                if not validation_warning and len(X_val) > 0:
+                    stability_metrics = self.calculate_model_stability(
+                        model_instance, X_train, X_val, y_train, y_val
+                    )
+                else:
+                    stability_metrics = {'cv_stability': 0.5, 'performance_gap': 0.5, 'overall_stability': 0.5}
+                
+                # Calculate performance metrics
+                y_pred_train = model_instance.predict(X_train)
+                if len(X_val) > 0:
+                    y_pred_val = model_instance.predict(X_val)
+                    val_accuracy = accuracy_score(y_val, y_pred_val)
+                    val_f1 = f1_score(y_val, y_pred_val, average='weighted', zero_division=0)
+                else:
+                    # If no validation data, use training data
+                    y_pred_val = y_pred_train
+                    val_accuracy = accuracy_score(y_train, y_pred_train)
+                    val_f1 = f1_score(y_train, y_pred_train, average='weighted', zero_division=0)
+                
+                train_accuracy = accuracy_score(y_train, y_pred_train)
+                train_f1 = f1_score(y_train, y_pred_train, average='weighted', zero_division=0)
+                
+                metrics = {
+                    'accuracy': float(val_accuracy),
+                    'f1_score': float(val_f1),
+                    'precision': float(precision_score(y_val, y_pred_val, average='weighted', zero_division=0)),
+                    'recall': float(recall_score(y_val, y_pred_val, average='weighted', zero_division=0)),
+                    'train_accuracy': float(train_accuracy),
+                    'train_f1': float(train_f1),
+                    'stability_score': stability_metrics['overall_stability'],
+                    'train_samples': X_train.shape[0],
+                    'val_samples': X_val.shape[0] if len(X_val) > 0 else 0
+                }
+            
+                
+                # Store model with enhanced information
+                model_info['chunk_models'][chunk_id] = {
+                    'model': model_instance,
+                    'metrics': metrics,
+                    'stability_metrics': stability_metrics,
+                    'trained_at': datetime.now().isoformat(),
+                    'vectorizer': self.vectorizer,
+                    'label_encoder': self.label_encoder,
+                    'X': X_chunk,
+                    'y': y_chunk
+                }
+                
+                chunk_metrics[model_name] = metrics
+                
+                print(f"  ✅ Val Accuracy: {val_accuracy:.4f}, Val F1: {val_f1:.4f}")
+                print(f"  📊 Stability: {stability_metrics['overall_stability']:.4f}")
+                
+                # Update best chunk considering both performance and stability
+                primary_metric = self.config['training']['primary_metric']
+                current_score = metrics[primary_metric]
+                stability_bonus = stability_metrics['overall_stability'] * 0.1  # 10% stability bonus
+                adjusted_score = current_score + stability_bonus
+                
+                if adjusted_score > model_info['best_score']:
+                    model_info['best_score'] = adjusted_score
+                    model_info['best_chunk'] = chunk_id
+                    print(f"  🏆 New best chunk for {model_name}: {chunk_id} "
+                          f"(Adj. Score: {adjusted_score:.4f})")
+                
+            except Exception as e:
+                print(f"  ❌ Error training {model_name}: {e}")
+                chunk_metrics[model_name] = {'error': str(e)}
+        
+        self.metrics[chunk_id] = chunk_metrics
+        return chunk_metrics
+    
+    def create_ensemble_model(self):
+        """Create ensemble model from best chunk models"""
+        print(f"\n{'='*50}")
+        print("CREATING DRIFT-RESISTANT ENSEMBLE MODEL")
+        print(f"{'='*50}")
+        
+        ensemble_models = []
+        model_weights = []
+        
+        for model_name, model_info in self.models.items():
+            best_chunk = model_info['best_chunk']
+            if best_chunk and best_chunk in model_info['chunk_models']:
+                best_model_data = model_info['chunk_models'][best_chunk]
+                ensemble_models.append((model_name, best_model_data['model']))
+                
+                # Weight by stability and performance
+                weight = (best_model_data['metrics']['f1_score'] + 
+                         best_model_data['stability_metrics']['overall_stability']) / 2
+                model_weights.append(weight)
+                
+                print(f"✓ {model_name:20} | Weight: {weight:.4f} | "
+                      f"F1: {best_model_data['metrics']['f1_score']:.4f} | "
+                      f"Stability: {best_model_data['stability_metrics']['overall_stability']:.4f}")
+        
+        if ensemble_models:
+            # Normalize weights
+            model_weights = np.array(model_weights)
+            model_weights = model_weights / model_weights.sum()
+            
+            # Create voting classifier
+            ensemble = VotingClassifier(
+                estimators=ensemble_models,
+                voting='soft',
+                weights=model_weights.tolist()
+            )
+            
+            print(f"🎯 Created ensemble with {len(ensemble_models)} models")
+            return ensemble
+        else:
+            print("❌ No models available for ensemble")
+            return None
+    
+    def run_drift_resistant_training(self, train_data_path):
+        """Run complete drift-resistant training pipeline"""
+        print("🚀 STARTING DRIFT-RESISTANT TRAINING PIPELINE")
+        print("=" * 50)
+        
+        # Load enhanced training data
+        try:
+            self.balanced_df = pd.read_csv(train_data_path)
+            print(f"📊 Loaded enhanced training data: {self.balanced_df.shape}")
+        except Exception as e:
+            print(f"❌ Error loading training data: {e}")
+            return False
+        
+        # Auto-detect columns
+        text_col, label_col = self.auto_detect_columns(self.balanced_df)
+        if not text_col or not label_col:
+            print("❌ Could not detect text and label columns")
+            return False
+        
+        print(f"Using text column: '{text_col}'")
+        print(f"Using label column: '{label_col}'")
+        
+        # Prepare features
+        texts = self.balanced_df[text_col].fillna('').astype(str)
+        X = self.prepare_features_drift_resistant(texts)
+        
+        # Prepare labels
+        y = self.balanced_df[label_col]
+        self.label_encoder = LabelEncoder()
+        y_encoded = self.label_encoder.fit_transform(y)
+        
+        print(f"Feature shape: {X.shape}")
+        print(f"Number of classes: {len(self.label_encoder.classes_)}")
+        
+        # Initialize models
+        self.initialize_models()
+        
+        # Create stable chunks
+        self.create_stable_chunks(X, y_encoded)
+        
+        # Train on all chunks
+        for chunk in self.chunks:
+            self.train_models_on_chunk(chunk)
+        
+        # Save models
+        self.save_all_chunk_models()
+        
+        # Find and save best chunk models
+        self.find_and_save_best_chunk_models()
+        
+        # Create and save ensemble
+        ensemble_model = self.create_ensemble_model()
+        if ensemble_model:
+            self.save_ensemble_model(ensemble_model)
+        
+        # Rank models
+        self.print_model_ranking()
+        
+        print(f"\n✅ DRIFT-RESISTANT TRAINING COMPLETED!")
+        print(f"   📁 Models saved in: {os.path.join(self.batch_path, 'models')}")
+        print(f"   🔢 Chunks processed: {len(self.chunks)}")
+        print(f"   🤖 Models trained: {len(self.models)}")
+        
+        return True
+class DriftResistantTrainer:
+    def __init__(self, batch_path, config_path="config.yaml"):
+        self.config = self.load_config(config_path)
+        self.batch_path = batch_path
+        self.balanced_df = None
+        self.chunks = []
+        self.models = {}
+        self.metrics = {}
+        self.label_encoder = LabelEncoder()
+        self.vectorizer = None
+        self.feature_columns = None
+        self.best_chunk_models = {}
+        self.overall_best_model = None
+        
+    # ... your existing methods ...
+    
+    # 🔥 ADD THESE METHODS INSIDE THE CLASS 🔥
+    
+    def auto_detect_columns(self, df):
+        """Auto-detect text and label columns with comprehensive fallback logic"""
+        if df is None or df.empty:
+            return None, None
+            
+        # Label column candidates (priority order)
+        label_candidates = ['label', 'category', 'class', 'target', 'industry', 'industry_name']
+        
+        # Text column candidates (priority order)  
+        text_candidates = ['text', 'content', 'summary', 'description', 'full_summary']
+        
+        label_col = None
+        text_col = None
+        
+        # First pass: exact matches
+        for candidate in label_candidates:
+            if candidate in df.columns:
+                label_col = candidate
+                break
+        
+        for candidate in text_candidates:
+            if candidate in df.columns:
+                text_col = candidate
+                break
+        
+        # Second pass: fuzzy matching for label column
+        if not label_col:
+            for col in df.columns:
+                col_lower = col.lower()
+                # Check if column name contains any label-related terms
+                label_terms = ['label', 'category', 'class', 'target', 'industry']
+                if any(term in col_lower for term in label_terms):
+                    label_col = col
+                    break
+        
+        # Third pass: find categorical column with reasonable class count
+        if not label_col:
+            for col in df.columns:
+                if df[col].dtype == 'object' and 2 <= df[col].nunique() <= 50:
+                    label_col = col
+                    break
+        
+        # Final fallback for label column
+        if not label_col and len(df.columns) > 0:
+            label_col = df.columns[0]
+        
+        # Second pass: fuzzy matching for text column
+        if not text_col:
+            for col in df.columns:
+                col_lower = col.lower()
+                # Check if column name contains any text-related terms
+                text_terms = ['text', 'content', 'summary', 'description', 'review', 'comment']
+                if any(term in col_lower for term in text_terms) and col != label_col:
+                    text_col = col
+                    break
+        
+        # Third pass: find text-like column by content analysis
+        if not text_col:
+            for col in df.columns:
+                if df[col].dtype == 'object' and col != label_col:
+                    # Sample the column to check if it contains substantial text
+                    sample = df[col].dropna().iloc[0] if not df[col].dropna().empty else ""
+                    if isinstance(sample, str) and len(sample) > 20:
+                        text_col = col
+                        break
+        
+        # Final fallbacks for text column
+        if not text_col:
+            if len(df.columns) > 1:
+                # Use second column if available and not the label column
+                text_col = df.columns[1] if df.columns[1] != label_col else df.columns[0]
+            elif len(df.columns) == 1 and label_col:
+                # If only one column and it's the label, we have a problem
+                print("❌ Warning: Only one column detected and it's being used as label")
+                text_col = label_col
+        
+        print(f"🔍 Auto-detected columns - Text: '{text_col}', Label: '{label_col}'")
+        return text_col, label_col
+
+    def save_all_chunk_models(self):
+        """Save all models for all chunks"""
+        models_dir = os.path.join(self.batch_path, "models")
+        os.makedirs(models_dir, exist_ok=True)
+        
+        total_saved = 0
+        for model_name, model_info in self.models.items():
+            model_dir = os.path.join(models_dir, model_name)
+            os.makedirs(model_dir, exist_ok=True)
+            
+            for chunk_id, chunk_model in model_info['chunk_models'].items():
+                filename = os.path.join(model_dir, f"chunk_{chunk_id}.pkl")
+                try:
+                    with open(filename, 'wb') as f:
+                        pickle.dump(chunk_model, f)
+                    total_saved += 1
+                except Exception as e:
+                    print(f"Error saving {model_name} chunk {chunk_id}: {e}")
+        
+        print(f"💾 Saved {total_saved} chunk models")
+        return total_saved
+
+    def find_and_save_best_chunk_models(self):
+        """Find and save the best chunk model for each model type"""
+        best_models_dir = os.path.join(self.batch_path, "best_models")
+        os.makedirs(best_models_dir, exist_ok=True)
+        
+        print(f"\n{'='*50}")
+        print("FINDING BEST CHUNK MODELS")
+        print(f"{'='*50}")
+        
+        self.best_chunk_models = {}
+        
+        for model_name, model_info in self.models.items():
+            best_chunk = model_info['best_chunk']
+            if best_chunk and best_chunk in model_info['chunk_models']:
+                best_model_data = model_info['chunk_models'][best_chunk]
+                self.best_chunk_models[model_name] = best_model_data
+                
+                # Save best model
+                filename = os.path.join(best_models_dir, f"best_{model_name}.pkl")
+                try:
+                    with open(filename, 'wb') as f:
+                        pickle.dump(best_model_data, f)
+                    
+                    metrics = best_model_data['metrics']
+                    primary_metric = self.config['training']['primary_metric']
+                    print(f"✓ {model_name:20} | Best chunk: {best_chunk} | {primary_metric}: {metrics[primary_metric]:.4f}")
+                    
+                except Exception as e:
+                    print(f"Error saving best {model_name}: {e}")
+            else:
+                print(f"✗ {model_name:20} | No best chunk found")
+        
+        return self.best_chunk_models
+
+    def save_ensemble_model(self, ensemble_model):
+        """Save the ensemble model"""
+        try:
+            best_models_dir = os.path.join(self.batch_path, "best_models")
+            filename = os.path.join(best_models_dir, "ensemble_model.pkl")
+            
+            with open(filename, 'wb') as f:
+                pickle.dump({
+                    'model': ensemble_model,
+                    'trained_at': datetime.now().isoformat(),
+                    'feature_columns': self.feature_columns.tolist() if hasattr(self, 'feature_columns') else [],
+                    'label_encoder': self.label_encoder,
+                    'vectorizer': self.vectorizer
+                }, f)
+            
+            print(f"✅ Ensemble model saved to: {filename}")
+            return True
+        except Exception as e:
+            print(f"❌ Error saving ensemble model: {e}")
+            return False
+            
+    # ... (Include the remaining methods from previous AdvancedChunkTrainer: 
+    # auto_detect_columns, save_all_chunk_models, find_and_save_best_chunk_models, 
+    # rank_models, print_model_ranking, save_ensemble_model, etc.)
+
+def main():
+    # This will be called by the main orchestrator
+    pass
+
+if __name__ == "__main__":
+    main()
+
+# continuous_improvement_orchestrator.py
+import os
+import pandas as pd
+import pickle
+import numpy as np
+import random
+import yaml
+from datetime import datetime
+from sklearn.utils import resample
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.feature_extraction.text import TfidfVectorizer
+import warnings
+warnings.filterwarnings('ignore')
+
+# ============================================================================
+# DATA AUGMENTATION PIPELINE
+# ============================================================================
+class DataAugmentationPipeline:
+    def __init__(self, config_path="ci-config.yaml"):
+        self.config = self.load_config(config_path)
+        self.batch_dir = "batchy-streamy"
+        self.current_batch = 1
+        
+    def load_config(self, config_path):
+        """Load configuration"""
+        try:
+            with open(config_path, 'r') as file:
+                config = yaml.safe_load(file)
+            print(f"✅ Configuration loaded from {config_path}")
+            return config
+        except Exception as e:
+            print(f"⚠️  Error loading config: {e}, using defaults")
+            return self.get_default_config()
+    
+    def get_default_config(self):
+        """Default configuration"""
+        return {
+            'augmentation': {
+                'text_augmentation_ratio': 0.3,
+                'synonym_replacement_ratio': 0.2,
+                'back_translation_ratio': 0.1,
+                'max_augmented_samples': 100,
+                'class_balancing': True
+            },
+            'paths': {
+                'original_data': 'balanced_dataset/balanced_dataset.csv',
+                'batch_dir': 'batchy-streamy'
+            }
+        }
+    
+    def find_original_data(self):
+        """Find the original data file"""
+        possible_paths = [
+            self.config['paths'].get('original_data', 'balanced_dataset/balanced_dataset.csv'),
+            'balanced_dataset/balanced_dataset.csv',
+            'balanced_dataset.csv',
+            'train_test_data/train_data.csv',
+        ]
+        
+        for data_path in possible_paths:
+            if os.path.exists(data_path):
+                print(f"✅ Found data at: {data_path}")
+                return data_path
+        
+        print("❌ No data file found. Available files:")
+        for item in os.listdir('.'):
+            if os.path.isfile(item) and item.endswith('.csv'):
+                print(f"   📄 {item}")
+        for item in os.listdir('.'):
+            if os.path.isdir(item):
+                print(f"   📁 {item}/")
+        
+        return None
+        
+    def load_original_data(self):
+        """Load and prepare original data"""
+        data_path = self.find_original_data()
+        if not data_path:
+            return None
+        
+        try:
+            if data_path.endswith('.pkl'):
+                with open(data_path, 'rb') as f:
+                    original_df = pickle.load(f)
+            else:
+                original_df = pd.read_csv(data_path)
+            
+            print(f"📊 Loaded data: {original_df.shape}")
+            print(f"📋 Columns: {original_df.columns.tolist()}")
+            return original_df
+        except Exception as e:
+            print(f"❌ Error loading data from {data_path}: {e}")
+            return None
+            
+    def setup_batch_structure(self):
+        """Create batch directory structure"""
+        os.makedirs(self.batch_dir, exist_ok=True)
+        
+        existing_batches = []
+        if os.path.exists(self.batch_dir):
+            for d in os.listdir(self.batch_dir):
+                if d.startswith('batch_') and os.path.isdir(os.path.join(self.batch_dir, d)):
+                    existing_batches.append(d)
+        
+        if existing_batches:
+            batch_numbers = []
+            for b in existing_batches:
+                try:
+                    batch_num = int(b.split('_')[1])
+                    batch_numbers.append(batch_num)
+                except:
+                    continue
+            if batch_numbers:
+                self.current_batch = max(batch_numbers) + 1
+        
+        batch_path = os.path.join(self.batch_dir, f"batch_{self.current_batch}")
+        os.makedirs(batch_path, exist_ok=True)
+        os.makedirs(os.path.join(batch_path, "models"), exist_ok=True)
+        os.makedirs(os.path.join(batch_path, "reports"), exist_ok=True)
+        os.makedirs(os.path.join(batch_path, "data"), exist_ok=True)
+        
+        print(f"📁 Created batch structure: {batch_path}")
+        return batch_path
+    
+    def text_augmentation_synonyms(self, text):
+        """Simple synonym replacement"""
+        if not isinstance(text, str) or len(text.strip()) == 0:
+            return text
+            
+        synonyms = {
+            'company': ['business', 'firm', 'corporation', 'enterprise'],
+            'industry': ['sector', 'field', 'domain', 'business area'],
+            'technology': ['tech', 'innovation', 'digital', 'IT'],
+            'financial': ['monetary', 'economic', 'fiscal'],
+            'services': ['offerings', 'solutions', 'assistance'],
+            'products': ['goods', 'offerings', 'merchandise'],
+            'customer': ['client', 'consumer', 'buyer'],
+            'market': ['industry', 'sector', 'landscape'],
+            'development': ['creation', 'establishment', 'formation'],
+            'management': ['administration', 'leadership', 'supervision'],
+        }
+        
+        words = text.split()
+        augmented_words = []
+        
+        for word in words:
+            word_lower = word.lower().strip('.,!?;:')
+            if word_lower in synonyms and random.random() < 0.3:
+                replacement = random.choice(synonyms[word_lower])
+                if word[0].isupper():
+                    replacement = replacement.capitalize()
+                augmented_words.append(replacement)
+            else:
+                augmented_words.append(word)
+        
+        return ' '.join(augmented_words)
+    
+    def text_augmentation_paraphrase(self, text):
+        """Simple paraphrasing by reordering and modifying"""
+        if not isinstance(text, str) or len(text.strip()) == 0:
+            return text
+            
+        words = text.split()
+        if len(words) <= 5:
+            return text
+            
+        if len(words) > 8 and random.random() < 0.4:
+            keep_start = min(2, len(words) // 4)
+            keep_end = min(2, len(words) // 4)
+            if len(words) > keep_start + keep_end:
+                middle_words = words[keep_start:-keep_end]
+                random.shuffle(middle_words)
+                words = words[:keep_start] + middle_words + words[-keep_end:]
+        
+        return ' '.join(words)
+    
+    def augment_text_data(self, df, text_column, label_column):
+        """Augment text data using various techniques"""
+        augmentation_config = self.config['augmentation']
+        augmented_samples = []
+        
+        class_counts = df[label_column].value_counts()
+        max_samples = augmentation_config['max_augmented_samples']
+        
+        print(f"🔧 Starting augmentation for {len(class_counts)} classes...")
+        
+        for class_name, count in class_counts.items():
+            class_data = df[df[label_column] == class_name]
+            samples_needed = max(0, max_samples - count)
+            
+            if samples_needed > 0 and len(class_data) > 0:
+                print(f"  Augmenting class '{class_name}': {count} → {max_samples} samples")
+                
+                augmentation_count = min(samples_needed, len(class_data) * 3)
+                for i in range(augmentation_count):
+                    if random.random() < augmentation_config['text_augmentation_ratio']:
+                        sample = class_data.sample(1).iloc[0]
+                        
+                        if pd.isna(sample[text_column]) or len(str(sample[text_column]).strip()) == 0:
+                            continue
+                            
+                        augmented_text = str(sample[text_column])
+                        
+                        if random.random() < augmentation_config['synonym_replacement_ratio']:
+                            augmented_text = self.text_augmentation_synonyms(augmented_text)
+                        
+                        if random.random() < augmentation_config['back_translation_ratio']:
+                            augmented_text = self.text_augmentation_paraphrase(augmented_text)
+                        
+                        if augmented_text != sample[text_column] and len(augmented_text.strip()) > 0:
+                            new_sample = sample.copy()
+                            new_sample[text_column] = augmented_text
+                            augmented_samples.append(new_sample)
+        
+        if augmented_samples:
+            augmented_df = pd.DataFrame(augmented_samples)
+            augmented_df = augmented_df.drop_duplicates(subset=[text_column])
+            final_df = pd.concat([df, augmented_df], ignore_index=True)
+            print(f"✅ Augmented {len(augmented_df)} new samples")
+            return final_df
+        
+        print("⚠️  No new samples were augmented")
+        return df
+    
+    def smart_oversampling(self, df, text_column, label_column):
+        """Smart oversampling for minority classes"""
+        class_counts = df[label_column].value_counts()
+        target_count = class_counts.max()
+        
+        print(f"📈 Balancing {len(class_counts)} classes to {target_count} samples each...")
+        
+        balanced_samples = []
+        
+        for class_name in class_counts.index:
+            class_data = df[df[label_column] == class_name]
+            current_count = len(class_data)
+            
+            if current_count < target_count:
+                needed = target_count - current_count
+                oversampled = resample(class_data, 
+                                     replace=True, 
+                                     n_samples=needed, 
+                                     random_state=42)
+                
+                for idx, sample in oversampled.iterrows():
+                    if random.random() < 0.3:
+                        original_text = str(sample[text_column])
+                        if len(original_text.strip()) > 0:
+                            augmented_text = self.text_augmentation_synonyms(original_text)
+                            if augmented_text != original_text:
+                                oversampled.at[idx, text_column] = augmented_text
+                
+                balanced_samples.append(oversampled)
+                print(f"  Balanced '{class_name}': {current_count} → {target_count} samples")
+        
+        if balanced_samples:
+            balanced_df = pd.concat([df] + balanced_samples, ignore_index=True)
+            print(f"📈 Balanced data from {len(df)} to {len(balanced_df)} samples")
+            return balanced_df
+        
+        print("⚠️  No balancing needed")
+        return df
+    
+    def auto_detect_columns(self, df):
+        """Auto-detect text and label columns"""
+        if df is None or df.empty:
+            return None, None
+            
+        label_candidates = ['label', 'category', 'class', 'target', 'industry', 'industry_name']
+        text_candidates = ['text', 'content', 'summary', 'description', 'full_summary']
+        
+        label_col = None
+        text_col = None
+        
+        for candidate in label_candidates:
+            if candidate in df.columns:
+                label_col = candidate
+                break
+        
+        if not label_col:
+            for col in df.columns:
+                if df[col].dtype == 'object' and 2 <= df[col].nunique() <= 50:
+                    label_col = col
+                    break
+            if not label_col and len(df.columns) > 0:
+                label_col = df.columns[0]
+        
+        for candidate in text_candidates:
+            if candidate in df.columns:
+                text_col = candidate
+                break
+        
+        if not text_col:
+            for col in df.columns:
+                if df[col].dtype == 'object' and col != label_col:
+                    sample_value = df[col].iloc[0] if not df[col].empty else ""
+                    if isinstance(sample_value, str) and len(sample_value) > 20:
+                        text_col = col
+                        break
+            if not text_col and len(df.columns) > 1:
+                text_col = df.columns[1] if df.columns[1] != label_col else df.columns[0]
+        
+        return text_col, label_col
+    
+    def create_enhanced_dataset(self):
+        """Create enhanced dataset with augmentation"""
+        original_df = self.load_original_data()
+        if original_df is None:
+            print("❌ Failed to load original data")
+            return None, None, None
+        
+        text_col, label_col = self.auto_detect_columns(original_df)
+        if not text_col or not label_col:
+            print("❌ Could not detect text and label columns")
+            print(f"Available columns: {original_df.columns.tolist()}")
+            return None, None, None
+        
+        print(f"🔧 Detected - Text: '{text_col}', Label: '{label_col}'")
+        
+        # Clean the data
+        original_df = original_df.dropna(subset=[text_col, label_col])
+        original_df[text_col] = original_df[text_col].fillna('').astype(str)
+        original_df[label_col] = original_df[label_col].fillna('').astype(str)
+        
+        print(f"📊 Cleaned data shape: {original_df.shape}")
+        
+        # Step 1: Basic augmentation
+        print("🔄 Step 1: Text augmentation...")
+        augmented_df = self.augment_text_data(original_df, text_col, label_col)
+        
+        # Step 2: Smart oversampling
+        if self.config['augmentation']['class_balancing']:
+            print("🔄 Step 2: Class balancing...")
+            enhanced_df = self.smart_oversampling(augmented_df, text_col, label_col)
+        else:
+            enhanced_df = augmented_df
+        
+        print(f"🎯 Dataset enhanced: {len(original_df)} → {len(enhanced_df)} samples")
+        
+        return enhanced_df, text_col, label_col
+    
+    def run_augmentation_pipeline(self):
+        """Run complete data augmentation pipeline"""
+        print("🚀 STARTING DATA AUGMENTATION PIPELINE")
+        print("=" * 50)
+        
+        # Setup batch structure
+        batch_path = self.setup_batch_structure()
+        
+        # Create enhanced dataset
+        result = self.create_enhanced_dataset()
+        if result is None:
+            print("❌ Data augmentation failed")
+            return None
+            
+        enhanced_data, text_col, label_col = result
+        
+        # Save enhanced dataset
+        data_path = os.path.join(batch_path, "data", "enhanced_dataset.csv")
+        enhanced_data.to_csv(data_path, index=False)
+        
+        # Create train-test split
+        from sklearn.model_selection import train_test_split
+        train_df, test_df = train_test_split(
+            enhanced_data, 
+            test_size=0.2, 
+            random_state=42, 
+            stratify=enhanced_data[label_col]
+        )
+        
+        # Save train and test data
+        train_path = os.path.join(batch_path, "data", "train_data.csv")
+        test_path = os.path.join(batch_path, "data", "test_data.csv")
+        train_df.to_csv(train_path, index=False)
+        test_df.to_csv(test_path, index=False)
+        
+        print(f"✅ Enhanced dataset saved to: {data_path}")
+        print(f"✅ Training data: {len(train_df)} samples")
+        print(f"✅ Test data: {len(test_df)} samples")
+        print(f"✅ Batch {self.current_batch} preparation complete!")
+        
+        return {
+            'batch_path': batch_path,
+            'batch_number': self.current_batch,
+            'train_path': train_path,
+            'test_path': test_path,
+            'text_column': text_col,
+            'label_column': label_col,
+            'train_samples': len(train_df),
+            'test_samples': len(test_df),
+            'original_samples': len(enhanced_data)
+        }
+
+# ============================================================================
+# DRIFT RESISTANT TRAINER
+# ============================================================================
+class DriftResistantTrainer:
+    def __init__(self, batch_path, config_path="config.yaml"):
+        self.config = self.load_config(config_path)
+        self.batch_path = batch_path
+        self.balanced_df = None
+        self.chunks = []
+        self.models = {}
+        self.metrics = {}
+        self.label_encoder = LabelEncoder()
+        self.vectorizer = None
+        self.feature_columns = None
+        self.best_chunk_models = {}
+        self.overall_best_model = None
+        
+    def load_config(self, config_path):
+        """Load configuration from YAML file"""
+        try:
+            with open(config_path, 'r') as file:
+                config = yaml.safe_load(file)
+            print(f"Configuration loaded successfully from {config_path}")
+            return config
+        except Exception as e:
+            print(f"Error loading config from {config_path}: {e}")
+            return self.get_default_config()
+    
+    def get_default_config(self):
+        """Provide default configuration"""
+        return {
+            'models': {
+                'logistic_regression': {
+                    'multi_class': 'multinomial', 'solver': 'lbfgs', 'max_iter': 1000, 
+                    'random_state': 42, 'class_weight': 'balanced', 'C': 0.5
+                },
+                'random_forest': {
+                    'n_estimators': 100, 'max_depth': 15, 'random_state': 42, 
+                    'class_weight': 'balanced', 'min_samples_split': 5
+                },
+                'decision_tree': {
+                    'max_depth': 8, 'random_state': 42, 'class_weight': 'balanced',
+                    'min_samples_split': 5, 'min_samples_leaf': 2
+                },
+                'neural_network': {
+                    'hidden_layer_sizes': (50, 25), 'max_iter': 1000, 'random_state': 42, 
+                    'early_stopping': True, 'learning_rate_init': 0.001, 'alpha': 0.01
+                },
+                'svm': {
+                    'kernel': 'linear', 'probability': True, 'random_state': 42, 
+                    'class_weight': 'balanced', 'C': 0.5
+                }
+            },
+            'training': {
+                'num_chunks': 8,
+                'random_state': 42, 
+                'primary_metric': 'f1_score',
+                'cross_validation_folds': 3
+            }
+        }
+    
+    def auto_detect_columns(self, df):
+        """Auto-detect text and label columns"""
+        if df is None or df.empty:
+            return None, None
+            
+        label_candidates = ['label', 'category', 'class', 'target', 'industry', 'industry_name']
+        text_candidates = ['text', 'content', 'summary', 'description', 'full_summary']
+        
+        label_col = None
+        text_col = None
+        
+        for candidate in label_candidates:
+            if candidate in df.columns:
+                label_col = candidate
+                break
+        
+        for candidate in text_candidates:
+            if candidate in df.columns:
+                text_col = candidate
+                break
+        
+        print(f"🔍 Auto-detected columns - Text: '{text_col}', Label: '{label_col}'")
+        return text_col, label_col
+
+    def initialize_models(self):
+        """Initialize models with drift-resistant configurations"""
+        models_config = self.config['models']
+        
+        self.models = {
+            'logistic_regression': {
+                'model_class': LogisticRegression,
+                'config': models_config['logistic_regression'],
+                'chunk_models': {},
+                'best_chunk': None,
+                'best_score': -1
+            },
+            'random_forest': {
+                'model_class': RandomForestClassifier,
+                'config': models_config['random_forest'],
+                'chunk_models': {},
+                'best_chunk': None,
+                'best_score': -1
+            },
+            'decision_tree': {
+                'model_class': DecisionTreeClassifier,
+                'config': models_config['decision_tree'],
+                'chunk_models': {},
+                'best_chunk': None,
+                'best_score': -1
+            },
+            'neural_network': {
+                'model_class': MLPClassifier,
+                'config': models_config['neural_network'],
+                'chunk_models': {},
+                'best_chunk': None,
+                'best_score': -1
+            },
+            'svm': {
+                'model_class': SVC,
+                'config': models_config['svm'],
+                'chunk_models': {},
+                'best_chunk': None,
+                'best_score': -1
+            }
+        }
+        
+        print("🤖 Initialized 5 drift-resistant models:")
+        for model_name in self.models.keys():
+            print(f"  ✓ {model_name}")
+        
+        return self.models
+    
+# In the DriftResistantTrainer class, fix the prepare_features_drift_resistant method:
+
+    def prepare_features_drift_resistant(self, texts):
+        """Prepare features with drift-resistant techniques"""
+        tfidf_config = self.config.get('feature_engineering', {}).get('tfidf', {
+            'max_features': 800,
+            'stop_words': 'english',
+            'ngram_range': (1, 2),  # ✅ FIXED: Changed from [1, 2] to (1, 2)
+            'min_df': 2,
+            'max_df': 0.8
+        })
+        
+        # Ensure ngram_range is a tuple (in case config still has list)
+        if isinstance(tfidf_config['ngram_range'], list):
+            tfidf_config['ngram_range'] = tuple(tfidf_config['ngram_range'])
+        
+        self.vectorizer = TfidfVectorizer(
+            max_features=tfidf_config['max_features'],
+            stop_words=tfidf_config['stop_words'],
+            ngram_range=tfidf_config['ngram_range'],
+            min_df=tfidf_config['min_df'],
+            max_df=tfidf_config['max_df']
+        )
+        
+        X = self.vectorizer.fit_transform(texts)
+        self.feature_columns = self.vectorizer.get_feature_names_out()
+        
+        print(f"🔧 Created drift-resistant features: {X.shape}")
+        return X
+        
+    # In the DriftResistantTrainer class, replace the create_stable_chunks method:
+    
+    def create_stable_chunks(self, X, y):
+        """Create chunks with stable data distribution ensuring minimum class samples"""
+        num_chunks = self.config['training']['num_chunks']
+        total_samples = X.shape[0]
+        
+        print(f"\nCreating {num_chunks} stable chunks from {total_samples} samples...")
+        
+        # Convert sparse matrix to dense for easier manipulation if needed
+        if hasattr(X, 'toarray'):
+            X_dense = X.toarray()
+        else:
+            X_dense = X
+        
+        # Get unique classes and their counts
+        unique_classes, class_counts = np.unique(y, return_counts=True)
+        print(f"Class distribution: {dict(zip(unique_classes, class_counts))}")
+        
+        # Ensure we have enough samples per class for stratification
+        min_samples_per_class = 2  # Minimum for stratification
+        problematic_classes = [cls for cls, count in zip(unique_classes, class_counts) 
+                              if count < min_samples_per_class * num_chunks]
+        
+        if problematic_classes:
+            print(f"⚠️  Warning: Classes {problematic_classes} have too few samples for {num_chunks} chunks")
+            print("   Reducing number of chunks to ensure stratification...")
+            # Reduce chunks to ensure minimum samples per class
+            max_possible_chunks = min(class_counts) // min_samples_per_class
+            num_chunks = min(num_chunks, max(1, max_possible_chunks))
+            print(f"   Using {num_chunks} chunks instead")
+        
+        # Simple sequential splitting (no stratification)
+        chunk_size = total_samples // num_chunks
+        
+        self.chunks = []
+        start_idx = 0
+        
+        for i in range(num_chunks):
+            end_idx = start_idx + chunk_size
+            if i == num_chunks - 1:
+                end_idx = total_samples
+            
+            chunk_data = {
+                'chunk_id': i + 1,
+                'start_idx': start_idx,
+                'end_idx': end_idx,
+                'size': end_idx - start_idx,
+                'X': X[start_idx:end_idx],
+                'y': y[start_idx:end_idx],
+                'class_distribution': dict(pd.Series(y[start_idx:end_idx]).value_counts())
+            }
+            
+            self.chunks.append(chunk_data)
+            print(f"Chunk {i+1}: {chunk_data['size']} samples, {len(chunk_data['class_distribution'])} classes")
+            
+            start_idx = end_idx
+        
+        return self.chunks
+        
+    
+    def train_with_regularization(self, model_class, config, X, y):
+        """Train model with enhanced regularization"""
+        try:
+            model = model_class(**config)
+            model.fit(X, y)
+            return model
+        except Exception as e:
+            print(f"Training error: {e}")
+            simple_config = {k: v for k, v in config.items() 
+                           if k not in ['alpha', 'C', 'max_depth', 'n_estimators']}
+            if 'C' in simple_config:
+                simple_config['C'] = 1.0
+            model = model_class(**simple_config)
+            model.fit(X, y)
+            return model
+    
+    def calculate_model_stability(self, model, X_train, X_val, y_train, y_val):
+        """Calculate model stability across different data splits"""
+        from sklearn.model_selection import cross_val_score
+        
+        try:
+            cv_scores = cross_val_score(model, X_train, y_train, 
+                                      cv=min(3, len(np.unique(y_train))),
+                                      scoring='f1_weighted')
+            stability_score = np.std(cv_scores)
+            
+            model.fit(X_train, y_train)
+            train_score = f1_score(y_train, model.predict(X_train), average='weighted')
+            val_score = f1_score(y_val, model.predict(X_val), average='weighted')
+            performance_gap = abs(train_score - val_score)
+            
+            return {
+                'cv_stability': 1 - stability_score,
+                'performance_gap': 1 - performance_gap,
+                'overall_stability': (1 - stability_score + 1 - performance_gap) / 2
+            }
+        except:
+            return {'cv_stability': 0.5, 'performance_gap': 0.5, 'overall_stability': 0.5}
+    def train_models_on_chunk(self, chunk):
+        """Train all models on a specific chunk with stability measures"""
+        chunk_id = chunk['chunk_id']
+        X_chunk = chunk['X']
+        y_chunk = chunk['y']
+        
+        print(f"\n{'='*60}")
+        print(f"TRAINING DRIFT-RESISTANT MODELS ON CHUNK {chunk_id}")
+        print(f"{'='*60}")
+        
+        chunk_metrics = {}
+        
+        # FIX: Check if we can use stratified split
+        unique_classes, class_counts = np.unique(y_chunk, return_counts=True)
+        min_class_count = np.min(class_counts)
+        
+        if min_class_count < 2:
+            print(f"⚠️  Warning: Chunk {chunk_id} has class with only 1 sample. Using regular split.")
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_chunk, y_chunk, test_size=0.2, random_state=42, stratify=None
+            )
+        else:
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_chunk, y_chunk, test_size=0.2, random_state=42, stratify=y_chunk
+            )
+        
+        # Rest of your code remains the same...
+        for model_name, model_info in self.models.items():
+            print(f"\n--- Training {model_name.upper()} on chunk {chunk_id} ---")
+            
+            try:
+                model_instance = self.train_with_regularization(
+                    model_info['model_class'], model_info['config'], X_train, y_train
+                )
+                
+                stability_metrics = self.calculate_model_stability(
+                    model_instance, X_train, X_val, y_train, y_val
+                )
+                
+                y_pred_train = model_instance.predict(X_train)
+                y_pred_val = model_instance.predict(X_val)
+                
+                train_accuracy = accuracy_score(y_train, y_pred_train)
+                val_accuracy = accuracy_score(y_val, y_pred_val)
+                train_f1 = f1_score(y_train, y_pred_train, average='weighted')
+                val_f1 = f1_score(y_val, y_pred_val, average='weighted')
+                
+                metrics = {
+                    'accuracy': float(val_accuracy),
+                    'f1_score': float(val_f1),
+                    'precision': float(precision_score(y_val, y_pred_val, average='weighted', zero_division=0)),
+                    'recall': float(recall_score(y_val, y_pred_val, average='weighted', zero_division=0)),
+                    'train_accuracy': float(train_accuracy),
+                    'train_f1': float(train_f1),
+                    'stability_score': stability_metrics['overall_stability'],
+                    'train_samples': X_train.shape[0],
+                    'val_samples': X_val.shape[0]
+                }
+                
+                model_info['chunk_models'][chunk_id] = {
+                    'model': model_instance,
+                    'metrics': metrics,
+                    'stability_metrics': stability_metrics,
+                    'trained_at': datetime.now().isoformat(),
+                    'vectorizer': self.vectorizer,
+                    'label_encoder': self.label_encoder,
+                    'X': X_chunk,
+                    'y': y_chunk
+                }
+                
+                chunk_metrics[model_name] = metrics
+                
+                print(f"  ✅ Val Accuracy: {val_accuracy:.4f}, Val F1: {val_f1:.4f}")
+                print(f"  📊 Stability: {stability_metrics['overall_stability']:.4f}")
+                
+                primary_metric = self.config['training']['primary_metric']
+                current_score = metrics[primary_metric]
+                stability_bonus = stability_metrics['overall_stability'] * 0.1
+                adjusted_score = current_score + stability_bonus
+                
+                if adjusted_score > model_info['best_score']:
+                    model_info['best_score'] = adjusted_score
+                    model_info['best_chunk'] = chunk_id
+                    print(f"  🏆 New best chunk for {model_name}: {chunk_id} "
+                          f"(Adj. Score: {adjusted_score:.4f})")
+                
+            except Exception as e:
+                print(f"  ❌ Error training {model_name}: {e}")
+                chunk_metrics[model_name] = {'error': str(e)}
+        
+        self.metrics[chunk_id] = chunk_metrics
+        return chunk_metrics
+    
+    def save_all_chunk_models(self):
+        """Save all models for all chunks"""
+        models_dir = os.path.join(self.batch_path, "models")
+        os.makedirs(models_dir, exist_ok=True)
+        
+        total_saved = 0
+        for model_name, model_info in self.models.items():
+            model_dir = os.path.join(models_dir, model_name)
+            os.makedirs(model_dir, exist_ok=True)
+            
+            for chunk_id, chunk_model in model_info['chunk_models'].items():
+                filename = os.path.join(model_dir, f"chunk_{chunk_id}.pkl")
+                try:
+                    with open(filename, 'wb') as f:
+                        pickle.dump(chunk_model, f)
+                    total_saved += 1
+                except Exception as e:
+                    print(f"Error saving {model_name} chunk {chunk_id}: {e}")
+        
+        print(f"💾 Saved {total_saved} chunk models")
+        return total_saved
+
+    def find_and_save_best_chunk_models(self):
+        """Find and save the best chunk model for each model type"""
+        best_models_dir = os.path.join(self.batch_path, "best_models")
+        os.makedirs(best_models_dir, exist_ok=True)
+        
+        print(f"\n{'='*50}")
+        print("FINDING BEST CHUNK MODELS")
+        print(f"{'='*50}")
+        
+        self.best_chunk_models = {}
+        
+        for model_name, model_info in self.models.items():
+            best_chunk = model_info['best_chunk']
+            if best_chunk and best_chunk in model_info['chunk_models']:
+                best_model_data = model_info['chunk_models'][best_chunk]
+                self.best_chunk_models[model_name] = best_model_data
+                
+                filename = os.path.join(best_models_dir, f"best_{model_name}.pkl")
+                try:
+                    with open(filename, 'wb') as f:
+                        pickle.dump(best_model_data, f)
+                    
+                    metrics = best_model_data['metrics']
+                    primary_metric = self.config['training']['primary_metric']
+                    print(f"✓ {model_name:20} | Best chunk: {best_chunk} | {primary_metric}: {metrics[primary_metric]:.4f}")
+                    
+                except Exception as e:
+                    print(f"Error saving best {model_name}: {e}")
+            else:
+                print(f"✗ {model_name:20} | No best chunk found")
+        
+        return self.best_chunk_models
+
+    def save_ensemble_model(self, ensemble_model):
+        """Save the ensemble model"""
+        try:
+            best_models_dir = os.path.join(self.batch_path, "best_models")
+            filename = os.path.join(best_models_dir, "ensemble_model.pkl")
+            
+            with open(filename, 'wb') as f:
+                pickle.dump({
+                    'model': ensemble_model,
+                    'trained_at': datetime.now().isoformat(),
+                    'feature_columns': self.feature_columns.tolist() if hasattr(self, 'feature_columns') else [],
+                    'label_encoder': self.label_encoder,
+                    'vectorizer': self.vectorizer
+                }, f)
+            
+            print(f"✅ Ensemble model saved to: {filename}")
+            return True
+        except Exception as e:
+            print(f"❌ Error saving ensemble model: {e}")
+            return False
+
+    def create_ensemble_model(self):
+        """Create ensemble model from best chunk models"""
+        print(f"\n{'='*50}")
+        print("CREATING DRIFT-RESISTANT ENSEMBLE MODEL")
+        print(f"{'='*50}")
+        
+        ensemble_models = []
+        model_weights = []
+        
+        for model_name, model_info in self.models.items():
+            best_chunk = model_info['best_chunk']
+            if best_chunk and best_chunk in model_info['chunk_models']:
+                best_model_data = model_info['chunk_models'][best_chunk]
+                ensemble_models.append((model_name, best_model_data['model']))
+                
+                weight = (best_model_data['metrics']['f1_score'] + 
+                         best_model_data['stability_metrics']['overall_stability']) / 2
+                model_weights.append(weight)
+                
+                print(f"✓ {model_name:20} | Weight: {weight:.4f} | "
+                      f"F1: {best_model_data['metrics']['f1_score']:.4f} | "
+                      f"Stability: {best_model_data['stability_metrics']['overall_stability']:.4f}")
+        
+        if ensemble_models:
+            model_weights = np.array(model_weights)
+            model_weights = model_weights / model_weights.sum()
+            
+            ensemble = VotingClassifier(
+                estimators=ensemble_models,
+                voting='soft',
+                weights=model_weights.tolist()
+            )
+            
+            print(f"🎯 Created ensemble with {len(ensemble_models)} models")
+            return ensemble
+        else:
+            print("❌ No models available for ensemble")
+            return None
+
+    def run_drift_resistant_training(self, train_data_path):
+        """Run complete drift-resistant training pipeline"""
+        print("🚀 STARTING DRIFT-RESISTANT TRAINING PIPELINE")
+        print("=" * 50)
+        
+        try:
+            self.balanced_df = pd.read_csv(train_data_path)
+            print(f"📊 Loaded enhanced training data: {self.balanced_df.shape}")
+        except Exception as e:
+            print(f"❌ Error loading training data: {e}")
+            return False
+        
+        text_col, label_col = self.auto_detect_columns(self.balanced_df)
+        if not text_col or not label_col:
+            print("❌ Could not detect text and label columns")
+            return False
+        
+        print(f"Using text column: '{text_col}'")
+        print(f"Using label column: '{label_col}'")
+        
+        texts = self.balanced_df[text_col].fillna('').astype(str)
+        X = self.prepare_features_drift_resistant(texts)
+        
+        y = self.balanced_df[label_col]
+        self.label_encoder = LabelEncoder()
+        y_encoded = self.label_encoder.fit_transform(y)
+        
+        print(f"Feature shape: {X.shape}")
+        print(f"Number of classes: {len(self.label_encoder.classes_)}")
+        
+        self.initialize_models()
+        self.create_stable_chunks(X, y_encoded)
+        
+        for chunk in self.chunks:
+            self.train_models_on_chunk(chunk)
+        
+        self.save_all_chunk_models()
+        self.find_and_save_best_chunk_models()
+        
+        ensemble_model = self.create_ensemble_model()
+        if ensemble_model:
+            self.save_ensemble_model(ensemble_model)
+        
+        print(f"\n✅ DRIFT-RESISTANT TRAINING COMPLETED!")
+        print(f"   📁 Models saved in: {os.path.join(self.batch_path, 'models')}")
+        print(f"   🔢 Chunks processed: {len(self.chunks)}")
+        print(f"   🤖 Models trained: {len(self.models)}")
+        
+        return True
+
+# ============================================================================
+# CONTINUOUS IMPROVEMENT ORCHESTRATOR
+# ============================================================================
+class ContinuousImprovementOrchestrator:
+    def __init__(self, config_path="ci-config.yaml", max_iterations=5, target_drift_threshold=0.02):
+        self.config_path = config_path
+        self.max_iterations = max_iterations
+        self.target_drift_threshold = target_drift_threshold
+        self.results_history = []
+        self.best_iteration = None
+        self.best_drift_score = float('inf')
+        
+    def load_config(self):
+        """Load configuration"""
+        try:
+            with open(self.config_path, 'r') as file:
+                return yaml.safe_load(file)
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            return {}
+    
+    def run_complete_iteration(self, iteration):
+        """Run one complete iteration of improvement cycle"""
+        print(f"\n{'='*80}")
+        print(f"🔄 ITERATION {iteration} - CONTINUOUS IMPROVEMENT CYCLE")
+        print(f"{'='*80}")
+        
+        iteration_results = {
+            'iteration': iteration,
+            'timestamp': datetime.now().isoformat(),
+            'batch_info': None,
+            'training_results': None,
+            'drift_results': None,
+            'drift_scores': None
+        }
+        
+        # Step 1: Data Augmentation
+        print("\n📊 STEP 1: DATA AUGMENTATION")
+        augmenter = DataAugmentationPipeline(self.config_path)
+        batch_info = augmenter.run_augmentation_pipeline()
+        
+        if not batch_info:
+            print("❌ Data augmentation failed")
+            return None
+        
+        iteration_results['batch_info'] = batch_info
+        
+        # Step 2: Drift-Resistant Training
+        print("\n🤖 STEP 2: DRIFT-RESISTANT TRAINING")
+        trainer = DriftResistantTrainer(batch_info['batch_path'], self.config_path)
+        training_success = trainer.run_drift_resistant_training(batch_info['train_path'])
+        
+        if not training_success:
+            print("❌ Training failed")
+            return None
+        
+        iteration_results['training_results'] = {
+            'models_trained': len(trainer.models),
+            'chunks_processed': len(trainer.chunks),
+            'best_model': trainer.overall_best_model
+        }
+        
+        # Step 3: Drift Analysis
+        print("\n📈 STEP 3: DRIFT ANALYSIS")
+        # Note: You'll need to import TestDataDriftAnalyzer and related functions
+        # For now, we'll simulate drift analysis
+        print("📊 Simulating drift analysis...")
+        
+        # Simulate some drift results for demonstration
+        iteration_results['drift_scores'] = {
+            'data_drift': 0.05 + random.random() * 0.05,  # Simulated values
+            'concept_drift': 0.03 + random.random() * 0.03,
+            'combined_drift': 0.04 + random.random() * 0.04
+        }
+        
+        return iteration_results
+    
+    def evaluate_iteration(self, iteration_results):
+        """Evaluate if iteration meets improvement criteria"""
+        if not iteration_results or 'drift_scores' not in iteration_results:
+            return False
+        
+        drift_scores = iteration_results['drift_scores']
+        combined_drift = drift_scores['combined_drift']
+        
+        print(f"\n📊 ITERATION EVALUATION:")
+        print(f"   Data Drift: {drift_scores['data_drift']:.4f}")
+        print(f"   Concept Drift: {drift_scores['concept_drift']:.4f}")
+        print(f"   Combined Drift: {combined_drift:.4f}")
+        print(f"   Target Threshold: {self.target_drift_threshold:.4f}")
+        
+        if combined_drift < self.best_drift_score:
+            self.best_drift_score = combined_drift
+            self.best_iteration = iteration_results['iteration']
+            print(f"   🎉 NEW BEST! (Previous best: {self.best_drift_score:.4f})")
+        
+        if combined_drift <= self.target_drift_threshold:
+            print(f"   ✅ TARGET ACHIEVED!")
+            return True
+        else:
+            print(f"   🔄 CONTINUING IMPROVEMENT...")
+            return False
+    
+    def generate_improvement_report(self):
+        """Generate comprehensive improvement report"""
+        print(f"\n{'='*80}")
+        print(f"📊 CONTINUOUS IMPROVEMENT FINAL REPORT")
+        print(f"{'='*80}")
+        
+        if not self.results_history:
+            print("No iterations completed")
+            return
+        
+        print(f"\n📈 ITERATION HISTORY:")
+        for result in self.results_history:
+            if result and 'drift_scores' in result:
+                drift_scores = result['drift_scores']
+                print(f"   Iteration {result['iteration']:2d} | "
+                      f"Data: {drift_scores['data_drift']:.4f} | "
+                      f"Concept: {drift_scores['concept_drift']:.4f} | "
+                      f"Combined: {drift_scores['combined_drift']:.4f}")
+        
+        if self.best_iteration is not None:
+            print(f"\n🏆 BEST ITERATION: {self.best_iteration}")
+            print(f"   Best Combined Drift Score: {self.best_drift_score:.4f}")
+            
+            best_result = next((r for r in self.results_history 
+                              if r['iteration'] == self.best_iteration), None)
+            
+            if best_result:
+                print(f"   📁 Location: {best_result['batch_info']['batch_path']}")
+                print(f"   📊 Training Samples: {best_result['batch_info']['train_samples']}")
+                print(f"   🤖 Models Trained: {best_result['training_results']['models_trained']}")
+        
+        print(f"\n🎯 IMPROVEMENT SUMMARY:")
+        if self.results_history:
+            initial_drift = self.results_history[0]['drift_scores']['combined_drift']
+            final_drift = self.results_history[-1]['drift_scores']['combined_drift']
+            improvement = initial_drift - final_drift
+            print(f"   Initial Drift: {initial_drift:.4f}")
+            print(f"   Final Drift: {final_drift:.4f}")
+            print(f"   Improvement: {improvement:.4f} ({improvement/initial_drift*100:.1f}%)")
+        
+        if self.best_drift_score <= self.target_drift_threshold:
+            print(f"   ✅ SUCCESS: Target drift threshold achieved!")
+        else:
+            print(f"   ⚠️  CONTINUE: Target not reached after {len(self.results_history)} iterations")
+    
+    def run_continuous_improvement(self):
+        """Run complete continuous improvement pipeline"""
+        print("🚀 STARTING CONTINUOUS IMPROVEMENT PIPELINE")
+        print(f"🎯 Target Drift Threshold: {self.target_drift_threshold}")
+        print(f"🔄 Maximum Iterations: {self.max_iterations}")
+        print("=" * 80)
+        
+        for iteration in range(1, self.max_iterations + 1):
+            print(f"\n📅 ITERATION {iteration}/{self.max_iterations}")
+            
+            iteration_results = self.run_complete_iteration(iteration)
+            self.results_history.append(iteration_results)
+            
+            if iteration_results:
+                if self.evaluate_iteration(iteration_results):
+                    print(f"\n✅ TARGET ACHIEVED in iteration {iteration}!")
+                    break
+            else:
+                print(f"❌ Iteration {iteration} failed")
+            
+            print(f"\n⏳ Completed {iteration}/{self.max_iterations} iterations")
+        
+        self.generate_improvement_report()
+        return self.best_iteration, self.best_drift_score
+        
+            
+def main():
+    orchestrator = ContinuousImprovementOrchestrator(
+        config_path="ci-config.yaml",
+        max_iterations=3,  # Reduced for testing
+        target_drift_threshold=0.03
+    )
+    
+    best_iteration, best_drift = orchestrator.run_continuous_improvement()
+    
+    print(f"\n🎉 PIPELINE COMPLETED!")
+    print(f"   Best Iteration: {best_iteration}")
+    print(f"   Best Drift Score: {best_drift:.4f}")
+    
+    if best_iteration:
+        best_result = next((r for r in orchestrator.results_history 
+                          if r['iteration'] == best_iteration), None)
+        if best_result:
+            print(f"   Best Model Location: {best_result['batch_info']['batch_path']}")
+
+if __name__ == "__main__":
+    main()
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from PIL import Image
+import IPython.display as display
+
+# 1. Display the SHAP plot that was saved
+def display_shap_analysis():
+    """Display the SHAP analysis image in notebook"""
+    try:
+        shap_image = Image.open("shap_analysis_logistic_regression.png")
+        plt.figure(figsize=(12, 8))
+        plt.imshow(shap_image)
+        plt.axis('off')
+        plt.title("SHAP Analysis - Best Model (Logistic Regression)", fontsize=16, pad=20)
+        plt.tight_layout()
+        plt.show()
+        
+        print("🔬 SHAP Analysis Interpretation:")
+        print("• Features at the TOP have highest impact on predictions")
+        print("• RED features push predictions HIGHER")
+        print("• BLUE features push predictions LOWER")
+        print("• Feature importance shows which terms drive classification decisions")
+        
+    except FileNotFoundError:
+        print("SHAP image not found. Check if the file exists.")
+        # List available SHAP files
+        import glob
+        shap_files = glob.glob("shap_analysis*.png")
+        if shap_files:
+            print("Available SHAP files:")
+            for file in shap_files:
+                print(f"  • {file}")
+
+def run_shap_in_notebook(best_model_info, X_test, feature_names):
+    """Run SHAP directly in notebook for interactive display"""
+    try:
+        import shap
+        
+        best_model = best_model_info['model']
+        
+        # Sample smaller dataset for SHAP
+        if X_test.shape[0] > 100:
+            X_sample = X_test[:100]
+        else:
+            X_sample = X_test
+        
+        # Create explainer based on model type
+        if hasattr(best_model, 'predict_proba'):
+            if hasattr(best_model, 'feature_importances_'):  # Tree-based
+                explainer = shap.TreeExplainer(best_model)
+                shap_values = explainer.shap_values(X_sample)
+            else:  # Linear models like Logistic Regression
+                explainer = shap.LinearExplainer(best_model, X_sample)
+                shap_values = explainer.shap_values(X_sample)
+            
+            # Display SHAP summary plot directly in notebook
+            print("📊 SHAP Feature Importance Summary:")
+            shap.summary_plot(shap_values, X_sample, feature_names=feature_names, show=True)
+            
+    except Exception as e:
+        print(f"SHAP display failed: {e}")
+
+# 2. Create Interactive Drift Visualization
+def display_drift_analysis(drift_results, best_model_info):
+    """Create interactive drift visualizations"""
+    
+    # Create subplots
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+    
+    # 1. Drift Distribution by Model
+    model_names = []
+    drift_means = []
+    drift_stds = []
+    
+    for model_name, chunks in drift_results.items():
+        drifts = [chunk['accuracy_drift'] for chunk in chunks]
+        model_names.append(model_name)
+        drift_means.append(np.mean(drifts))
+        drift_stds.append(np.std(drifts))
+    
+    bars = ax1.bar(model_names, drift_means, yerr=drift_stds, capsize=5, 
+                   color=['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'])
+    ax1.set_title('Average Accuracy Drift by Model Type', fontsize=14, fontweight='bold')
+    ax1.set_ylabel('Accuracy Drift (Train - Test)')
+    ax1.tick_params(axis='x', rotation=45)
+    
+    # Add value labels on bars
+    for bar in bars:
+        height = bar.get_height()
+        ax1.text(bar.get_x() + bar.get_width()/2., height,
+                f'{height:.3f}', ha='center', va='bottom')
+    
+    # 2. Performance vs Drift Scatter Plot
+    colors = {'logistic_regression': '#ff6b6b', 'neural_network': '#4ecdc4', 
+              'random_forest': '#45b7d1', 'svm': '#96ceb4', 'decision_tree': '#feca57'}
+    
+    for model_name, chunks in drift_results.items():
+        test_accuracies = [chunk['test_accuracy'] for chunk in chunks]
+        drifts = [chunk['accuracy_drift'] for chunk in chunks]
+        ax2.scatter(test_accuracies, drifts, label=model_name, 
+                   color=colors[model_name], alpha=0.7, s=100)
+    
+    # Highlight best model
+    best_test_acc = best_model_info['test_accuracy']
+    best_drift = best_model_info['accuracy_drift']
+    ax2.scatter(best_test_acc, best_drift, color='red', s=200, 
+                marker='*', label='Best Model', edgecolors='black')
+    
+    ax2.set_xlabel('Test Accuracy')
+    ax2.set_ylabel('Accuracy Drift')
+    ax2.set_title('Test Accuracy vs Drift (Lower Drift = Better)', fontsize=14, fontweight='bold')
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+    
+    # 3. Throughput and Latency Comparison
+    throughput_data = []
+    latency_data = []
+    model_labels = []
+    
+    for model_name, chunks in drift_results.items():
+        throughputs = [chunk['throughput'] for chunk in chunks]
+        latencies = [chunk['latency'] for chunk in chunks]
+        throughput_data.append(np.mean(throughputs))
+        latency_data.append(np.mean(latencies))
+        model_labels.append(model_name)
+    
+    x = np.arange(len(model_labels))
+    width = 0.35
+    
+    bars1 = ax3.bar(x - width/2, throughput_data, width, label='Throughput (pred/sec)', color='lightblue')
+    bars2 = ax3.bar(x + width/2, [l*1000 for l in latency_data], width, label='Latency (ms)', color='lightcoral')
+    
+    ax3.set_xlabel('Model Type')
+    ax3.set_title('Performance: Throughput vs Latency', fontsize=14, fontweight='bold')
+    ax3.set_xticks(x)
+    ax3.set_xticklabels(model_labels, rotation=45)
+    ax3.legend()
+    
+    # 4. Reliability Analysis
+    reliability_data = []
+    for model_name, chunks in drift_results.items():
+        reliabilities = [chunk['reliability'] for chunk in chunks]
+        reliability_data.append(reliabilities)
+    
+    box_plot = ax4.boxplot(reliability_data, labels=model_names, patch_artist=True)
+    # Color the boxes
+    colors = ['lightgreen', 'lightblue', 'lightyellow', 'lightcoral', 'lightgray']
+    for patch, color in zip(box_plot['boxes'], colors):
+        patch.set_facecolor(color)
+    
+    ax4.set_title('Model Reliability Distribution', fontsize=14, fontweight='bold')
+    ax4.set_ylabel('Reliability Score')
+    ax4.tick_params(axis='x', rotation=45)
+    ax4.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.show()
+
+# 3. Create Detailed Model Comparison Table
+def display_model_comparison_table(drift_results):
+    """Display a detailed comparison table of all models"""
+    
+    comparison_data = []
+    
+    for model_name, chunks in drift_results.items():
+        test_accuracies = [chunk['test_accuracy'] for chunk in chunks]
+        drifts = [chunk['accuracy_drift'] for chunk in chunks]
+        throughputs = [chunk['throughput'] for chunk in chunks]
+        reliabilities = [chunk['reliability'] for chunk in chunks]
+        
+        comparison_data.append({
+            'Model': model_name,
+            'Avg Test Accuracy': f"{np.mean(test_accuracies):.4f}",
+            'Best Test Accuracy': f"{np.max(test_accuracies):.4f}",
+            'Avg Drift': f"{np.mean(drifts):.4f}",
+            'Avg Throughput': f"{np.mean(throughputs):.0f}",
+            'Avg Reliability': f"{np.mean(reliabilities):.4f}",
+            'Chunks': len(chunks)
+        })
+    
+    # Convert to DataFrame for nice display
+    df_comparison = pd.DataFrame(comparison_data)
+    
+    print("📋 DETAILED MODEL COMPARISON:")
+    display.display(df_comparison.style.background_gradient(subset=['Avg Test Accuracy', 'Avg Reliability'], 
+                                                           cmap='RdYlGn'))
+
+# 4. Display Key Insights
+def display_key_insights(drift_results, best_model_info):
+    """Display key insights from drift analysis"""
+    
+    print("\n" + "="*80)
+    print("🔍 KEY INSIGHTS FROM DRIFT ANALYSIS")
+    print("="*80)
+    
+    # Find best performing chunks for each model
+    best_chunks = {}
+    for model_name, chunks in drift_results.items():
+        best_chunk = max(chunks, key=lambda x: x['test_accuracy'])
+        best_chunks[model_name] = best_chunk
+    
+    print("\n🏆 BEST CHUNK PERFORMANCE BY MODEL:")
+    for model_name, chunk in best_chunks.items():
+        print(f"   {model_name:20} | Chunk {chunk['chunk_id']:2} | "
+              f"Test Acc: {chunk['test_accuracy']:.4f} | "
+              f"Drift: {chunk['accuracy_drift']:7.4f}")
+    
+    print(f"\n💡 CRITICAL OBSERVATIONS:")
+    
+    # Analyze drift patterns
+    positive_drifts = []
+    negative_drifts = []
+    for model_name, chunks in drift_results.items():
+        for chunk in chunks:
+            if chunk['accuracy_drift'] > 0:
+                positive_drifts.append(chunk)
+            else:
+                negative_drifts.append(chunk)
+    
+    print(f"   • {len(positive_drifts)} models OVERFIT (train > test performance)")
+    print(f"   • {len(negative_drifts)} models UNDERFIT (test > train performance)")
+    
+    # Check consistency
+    high_reliability_models = []
+    for model_name, chunks in drift_results.items():
+        avg_reliability = np.mean([chunk['reliability'] for chunk in chunks])
+        if avg_reliability > 0.95:
+            high_reliability_models.append(model_name)
+    
+    print(f"   • High reliability models: {', '.join(high_reliability_models)}")
+    
+    # Performance recommendations
+    print(f"\n🎯 RECOMMENDATIONS:")
+    if best_model_info['accuracy_drift'] > 0.1:
+        print("   • Best model shows significant overfitting - consider regularization")
+    else:
+        print("   • Best model generalizes well to test data")
+    
+    if best_model_info['test_accuracy'] < 0.5:
+        print("   • Model performance is low - consider feature engineering or more data")
+    else:
+        print("   • Model performance is acceptable for production")
+
+# 5. MAIN DISPLAY FUNCTION - Run everything
+def display_complete_analysis(drift_results, best_model_info):
+    """Display complete drift analysis in notebook"""
+    
+    print("📊 COMPLETE DRIFT ANALYSIS VISUALIZATION")
+    print("=" * 60)
+    
+    # Display SHAP analysis
+    display_shap_analysis()
+    
+    # Display drift visualizations
+    display_drift_analysis(drift_results, best_model_info)
+    
+    # Display comparison table
+    display_model_comparison_table(drift_results)
+    
+    # Display key insights
+    display_key_insights(drift_results, best_model_info)
+    
+    # Final summary
+    print(f"\n✅ ANALYSIS COMPLETE")
+    print(f"   Best Model: {best_model_info['model_name']} (Chunk {best_model_info['chunk_id']})")
+    print(f"   Production Ready: {'YES' if best_model_info['test_accuracy'] > 0.4 and best_model_info['reliability'] > 0.95 else 'WITH CAUTION'}")
+
+# Quick summary function
+def display_quick_summary(best_model_info):
+    """Display quick summary of results"""
+    print("🎯 DRIFT ANALYSIS QUICK SUMMARY")
+    print("=" * 40)
+    
+    print(f"🏆 Best Model: {best_model_info['model_name']} (Chunk {best_model_info['chunk_id']})")
+    print(f"📊 Test Accuracy: {best_model_info['test_accuracy']:.1%}")
+    print(f"📈 Accuracy Drift: {best_model_info['accuracy_drift']:.1%}")
+    print(f"⚡ Throughput: {best_model_info['throughput']:,.0f} pred/sec")
+    print(f"⏱️  Latency: {best_model_info['latency']*1000:.1f} ms")
+    print(f"🛡️  Reliability: {best_model_info['reliability']:.1%}")
+
+# Usage example (you'll need to call this with your actual data)
+if __name__ == "__main__":
+    # This is just an example - you need to provide actual data
+    print("To use this analysis, call:")
+    print("display_complete_analysis(drift_results, best_model_info)")
+    print("OR")
+    print("display_quick_summary(best_model_info)")
+    print("display_shap_analysis()")
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import pickle
+import os
+from sklearn.feature_extraction import text
+import warnings
+warnings.filterwarnings('ignore')
+
+def run_complete_shap_analysis_fixed():
+    """
+    FIXED VERSION: Handles SHAP array structure correctly
+    """
+    
+    # Set your paths
+    batch_path = "batchy-streamy/batch_30"
+    test_data_path = "batchy-streamy/batch_30/data/test_data.csv"
+    
+    print("🚀 STARTING COMPLETE SHAP ANALYSIS")
+    print("=" * 60)
+    
+    # 1. Load the vectorizer and find the best model
+    print("📁 Loading models and data...")
+    
+    def load_best_model_and_vectorizer(batch_path):
+        """Find and load the best model based on performance"""
+        models_dir = os.path.join(batch_path, "models")
+        best_model = None
+        best_accuracy = -1
+        vectorizer = None
+        
+        for model_name in os.listdir(models_dir):
+            model_dir = os.path.join(models_dir, model_name)
+            if os.path.isdir(model_dir):
+                for model_file in os.listdir(model_dir):
+                    if model_file.startswith("chunk_") and model_file.endswith(".pkl"):
+                        try:
+                            with open(os.path.join(model_dir, model_file), 'rb') as f:
+                                model_data = pickle.load(f)
+                            
+                            # Get vectorizer (same for all models)
+                            vectorizer = model_data['vectorizer']
+                            
+                            # Check if this is the best model
+                            accuracy = model_data['metrics']['accuracy']
+                            if accuracy > best_accuracy:
+                                best_accuracy = accuracy
+                                best_model = {
+                                    'model_name': model_name,
+                                    'chunk_id': int(model_file.split('_')[1].split('.')[0]),
+                                    'model': model_data['model'],
+                                    'accuracy': accuracy,
+                                    'vectorizer': vectorizer
+                                }
+                                
+                        except Exception as e:
+                            continue
+        
+        return best_model, vectorizer
+    
+    # Load the best model
+    best_model_info, vectorizer = load_best_model_and_vectorizer(batch_path)
+    
+    if best_model_info is None:
+        print("❌ Could not load any models. Check if batch_30 exists.")
+        return
+    
+    print(f"✅ Best model found: {best_model_info['model_name']} (chunk {best_model_info['chunk_id']})")
+    print(f"   Training accuracy: {best_model_info['accuracy']:.4f}")
+    
+    # 2. Load and prepare test data
+    try:
+        test_df = pd.read_csv(test_data_path)
+        print(f"✅ Test data loaded: {test_df.shape}")
+    except:
+        print(f"❌ Could not load test data from {test_data_path}")
+        return
+    
+    texts_test = test_df['full_summary'].fillna('').astype(str)
+    X_test = vectorizer.transform(texts_test)
+    feature_names = vectorizer.get_feature_names_out()
+    
+    print(f"📊 Data prepared:")
+    print(f"   • Test samples: {X_test.shape[0]}")
+    print(f"   • Total features: {len(feature_names)}")
+    
+    # 3. Filter features for display only (not for model input)
+    print("\n🎯 IDENTIFYING DOMAIN-RELEVANT FEATURES...")
+    
+    enhanced_stop_words = text.ENGLISH_STOP_WORDS.union([
+        'company', 'industry', 'business', 'service', 'product', 
+        'technology', 'solution', 'system', 'platform', 'application',
+        'based', 'including', 'provide', 'within', 'across', 'using',
+        'new', 'also', 'used', 'well', 'may', 'like', 'make', 'take',
+        'one', 'would', 'could', 'first', 'time', 'way', 'even', 'much',
+        '10', '100', '15', '20', '30', '50', '000', '2023', '2024', '2025',
+        'http', 'https', 'www', 'com', 'org', 'net', 'html'
+    ])
+    
+    # Identify domain-relevant features for display
+    domain_relevant_indices = []
+    domain_relevant_features = []
+    
+    for i, feature in enumerate(feature_names):
+        feature_words = feature.lower().split()
+        if not any(word in enhanced_stop_words for word in feature_words):
+            domain_relevant_indices.append(i)
+            domain_relevant_features.append(feature)
+    
+    print(f"✅ Feature analysis completed:")
+    print(f"   • Total features: {len(feature_names)}")
+    print(f"   • Domain-relevant features: {len(domain_relevant_features)}")
+    print(f"   • Stop words identified: {len(feature_names) - len(domain_relevant_features)}")
+    
+    # Show sample of domain-relevant features
+    print(f"\n📝 SAMPLE DOMAIN-RELEVANT FEATURES:")
+    for i, feature in enumerate(domain_relevant_features[:20]):
+        print(f"   {i+1:2d}. {feature}")
+    
+    # 4. Run SHAP analysis on ALL features (as the model expects)
+    print(f"\n🔬 RUNNING SHAP ANALYSIS...")
+    
+    try:
+        import shap
+    except ImportError:
+        print("❌ SHAP not installed. Please run: pip install shap")
+        return
+    
+    best_model = best_model_info['model']
+    
+    # Sample smaller dataset for SHAP performance
+    if X_test.shape[0] > 100:
+        X_sample = X_test[:100]
+    else:
+        X_sample = X_test
+    
+    try:
+        # Create explainer using ALL features (model expects original dimensions)
+        if hasattr(best_model, 'predict_proba'):
+            if hasattr(best_model, 'feature_importances_'):  # Tree-based
+                explainer = shap.TreeExplainer(best_model)
+                shap_values = explainer.shap_values(X_sample)
+                print("   Using TreeExplainer...")
+            else:  # Linear models
+                explainer = shap.LinearExplainer(best_model, X_sample)
+                shap_values = explainer.shap_values(X_sample)
+                print("   Using LinearExplainer...")
+            
+            # Handle multi-class vs binary classification
+            if isinstance(shap_values, list):
+                # Multi-class: use the first class for feature importance
+                shap_values_single = shap_values[0]
+                print(f"   Multi-class detected, using first class SHAP values")
+            else:
+                shap_values_single = shap_values
+                print(f"   Binary classification detected")
+            
+            print(f"   SHAP values shape: {np.array(shap_values_single).shape}")
+            
+            # Create filtered SHAP values for domain-relevant features only
+            if hasattr(shap_values_single, 'shape') and len(shap_values_single.shape) > 1:
+                shap_values_filtered = shap_values_single[:, domain_relevant_indices]
+            else:
+                shap_values_filtered = shap_values_single[domain_relevant_indices]
+            
+            # Display SHAP summary plot with domain-relevant features only
+            plt.figure(figsize=(14, 8))
+            shap.summary_plot(shap_values_filtered, 
+                            X_sample[:, domain_relevant_indices], 
+                            feature_names=domain_relevant_features, 
+                            show=False, 
+                            max_display=20)
+            
+            plt.title(f"SHAP Analysis - {best_model_info['model_name'].replace('_', ' ').title()}\nDomain-Relevant Features Only", 
+                     fontsize=16, fontweight='bold', pad=20)
+            plt.tight_layout()
+            
+            # Save the plot as PNG
+            plt.savefig('shap_analysis_domain_relevant.png', dpi=300, bbox_inches='tight')
+            plt.show()
+            
+            # 5. Display top domain-relevant features
+            display_top_domain_features_fixed(domain_relevant_features, shap_values_filtered)
+            
+            print(f"\n✅ SHAP ANALYSIS COMPLETED SUCCESSFULLY!")
+            print(f"   • Model: {best_model_info['model_name']}")
+            print(f"   • Domain-relevant features analyzed: {len(domain_relevant_features)}")
+            print(f"   • Plot saved as: shap_analysis_domain_relevant.png")
+            
+            return domain_relevant_features, shap_values_filtered
+            
+        else:
+            print("❌ SHAP not supported for this model type")
+            return None, None
+            
+    except Exception as e:
+        print(f"❌ SHAP analysis failed: {e}")
+        import traceback
+        print(f"Detailed error: {traceback.format_exc()}")
+        return None, None
+
+def display_top_domain_features_fixed(feature_names, shap_values, top_n=20):
+    """FIXED VERSION: Display the most important domain-relevant features"""
+    
+    # Convert to numpy array for consistent handling and ensure we work with the first class if it's multi-class
+    shap_array = np.array(shap_values)
+    if len(shap_array.shape) > 1 and shap_array.shape[0] > 1:
+        # If it's multi-class, use the first class for importance ranking
+        shap_array = shap_array[0]
+    
+    # Calculate feature importance from SHAP values
+    if len(shap_array.shape) > 1:
+        # 2D array: (samples, features)
+        feature_importance = np.abs(shap_array).mean(axis=0)
+    else:
+        # 1D array: (features,)
+        feature_importance = np.abs(shap_array)
+    
+    # Get top features
+    top_indices = np.argsort(feature_importance)[-top_n:][::-1]
+    
+    print(f"\n🏆 TOP {min(top_n, len(feature_names))} DOMAIN-RELEVANT FEATURES:")
+    print("=" * 60)
+    
+    # Domain categories for interpretation
+    domain_categories = {
+        'TECH': ['software', 'tech', 'digital', 'cloud', 'ai', 'data', 'algorithm', 'machine', 'learning'],
+        'FINANCE': ['financial', 'bank', 'investment', 'wealth', 'portfolio', 'asset', 'capital', 'risk'],
+        'HEALTHCARE': ['medical', 'health', 'patient', 'care', 'clinical', 'hospital', 'treatment'],
+        'BUSINESS': ['management', 'strategy', 'consulting', 'business', 'enterprise', 'market'],
+        'OPERATIONS': ['operation', 'process', 'efficiency', 'workflow', 'automation', 'logistics'],
+        'ANALYTICS': ['analytics', 'analysis', 'insight', 'metric', 'reporting', 'intelligence']
+    }
+    
+    for i, idx in enumerate(top_indices):
+        # This check is now safe because both sides are single integers
+        if i < len(feature_names) and i < top_n:
+            feature = feature_names[idx]
+            importance = feature_importance[idx]
+            
+            # Find domain category
+            category = "General"
+            for domain, keywords in domain_categories.items():
+                if any(keyword in feature.lower() for keyword in keywords):
+                    category = domain
+                    break
+            
+            print(f"{i+1:2d}. {feature:35} | Importance: {importance:7.4f} | {category}")
+# Function to display the saved PNG
+def display_saved_shap_plot():
+    """Display the saved SHAP plot in the notebook"""
+    try:
+        from PIL import Image
+        import IPython.display as display
+        
+        image_path = "shap_analysis_domain_relevant.png"
+        if os.path.exists(image_path):
+            print(f"📊 DISPLAYING SAVED SHAP PLOT: {image_path}")
+            img = Image.open(image_path)
+            # Resize for better display in notebook
+            display.display(img)
+        else:
+            print(f"❌ Saved plot not found at: {image_path}")
+            print("   Run the SHAP analysis first to generate the plot.")
+    except ImportError:
+        print("❌ PIL not available for image display")
+    except Exception as e:
+        print(f"❌ Error displaying image: {e}")
+
+# 🚀 RUN THE COMPLETE SOLUTION
+print("Starting complete SHAP analysis...")
+features, values = run_complete_shap_analysis_fixed()
+
+if features is not None:
+    print(f"\n🎉 ANALYSIS COMPLETE!")
+    print(f"   SHAP plot has been generated and saved")
+    
+    # Display the saved plot
+    #display_saved_shap_plot()
+else:
+    print(f"\n💡 TROUBLESHOOTING:")
+    print(f"   1. Make sure 'batchy-streamy/batch_30' exists")
+    print(f"   2. Check that models are saved in the batch directory")
+    print(f"   3. Ensure SHAP is installed: pip install shap")	

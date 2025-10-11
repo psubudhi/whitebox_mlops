@@ -1,0 +1,1839 @@
+Created ci-config.yaml
+
+Configuration loaded from ci-config.yaml
+STARTING DATA AUGMENTATION PIPELINE
+==================================================
+Created batch structure: batchy-streamy/batch_1
+Found data at: balanced_dataset.csv
+Loaded data: (272, 12)
+Columns: ['created_at', 'title', 'industry', 'year', 'source_url', 'company', 'application_tags', 'tools_tags', 'extra_tags', 'techniques_tags', 'short_summary', 'full_summary']
+Detected - Text column: 'full_summary', Label column: 'industry'
+Cleaned data shape: (272, 12)
+Step 1: Text augmentation ...
+Starting augmentation for 16 classes...
+Augmenting class 'Finance': 17 → 100 samples
+Augmenting class 'Insurance': 17 → 100 samples
+Augmenting class 'Media & Entertainment': 17 → 100 samples
+Augmenting class 'Legal': 17 → 100 samples
+Augmenting class 'Government': 17 → 100 samples
+Augmenting class 'Automotive': 17 → 100 samples
+Augmenting class 'Telecommunications': 17 → 100 samples
+Augmenting class 'E-commerce': 17 → 100 samples
+Augmenting class 'Education': 17 → 100 samples
+Augmenting class 'Energy': 17 → 100 samples
+Augmenting class 'Consulting': 17 → 100 samples
+Augmenting class 'HR': 17 → 100 samples
+Augmenting class 'Research & Academia': 17 → 100 samples
+Augmenting class 'Healthcare': 17 → 100 samples
+Augmenting class 'Tech': 17 → 100 samples
+Augmenting class 'Other': 17 → 100 samples
+Augmented 76 new samples
+Step 2: Class balancing ...
+Balancing 16 classes to 24 samples each...
+Balanced 'Education': 23 → 24 samples
+Balanced 'Healthcare': 22 → 24 samples
+Balanced 'E-commerce': 22 → 24 samples
+Balanced 'Telecommunications': 22 → 24 samples
+Balanced 'Other': 22 → 24 samples
+Balanced 'Insurance': 21 → 24 samples
+Balanced 'Consulting': 21 → 24 samples
+Balanced 'Government': 21 → 24 samples
+Balanced 'Automotive': 21 → 24 samples
+Balanced 'HR': 21 → 24 samples
+Balanced 'Tech': 21 → 24 samples
+Balanced 'Finance': 20 → 24 samples
+Balanced 'Legal': 19 → 24 samples
+Balanced data from 348 to 384 samples
+Dataset enhanced: 272 → 384 samples
+Enhanced dataset saved to: batchy-streamy/batch_1/data/enhanced_dataset.csv
+Training data samples: 307
+Test data samples: 77
+Batch 1 preparation complete!
+
+AUGMENTATION PIPELINE COMPLETED!
+Batch Location: batchy-streamy/batch_1
+Batch Number: 1
+Original Samples: 384
+Training Samples: 307
+Test Samples: 77
+
+STARTING CONTINUOUS IMPROVEMENT PIPELINE
+Target Drift Threshold: 0.03
+Maximum Iterations: 5
+================================================================================
+
+ITERATION 1/5
+
+================================================================================
+ITERATION 1 - CONTINUOUS IMPROVEMENT CYCLE
+================================================================================
+
+STEP 1: DATA AUGMENTATION
+Configuration loaded from ci-config.yaml
+STARTING DATA AUGMENTATION PIPELINE
+==================================================
+Created batch structure: batchy-streamy/batch_2
+Found data at: balanced_dataset.csv
+Loaded data: (272, 12)
+Columns: ['created_at', 'title', 'industry', 'year', 'source_url', 'company', 'application_tags', 'tools_tags', 'extra_tags', 'techniques_tags', 'short_summary', 'full_summary']
+Detected - Text: 'full_summary', Label: 'industry'
+Cleaned data shape: (272, 12)
+Step 1: Text augmentation...
+Starting augmentation for 16 classes...
+  Augmenting class 'Finance': 17 -> 100 samples
+  Augmenting class 'Insurance': 17 -> 100 samples
+  Augmenting class 'Media & Entertainment': 17 -> 100 samples
+  Augmenting class 'Legal': 17 -> 100 samples
+  Augmenting class 'Government': 17 -> 100 samples
+  Augmenting class 'Automotive': 17 -> 100 samples
+  Augmenting class 'Telecommunications': 17 -> 100 samples
+  Augmenting class 'E-commerce': 17 -> 100 samples
+  Augmenting class 'Education': 17 -> 100 samples
+  Augmenting class 'Energy': 17 -> 100 samples
+  Augmenting class 'Consulting': 17 -> 100 samples
+  Augmenting class 'HR': 17 -> 100 samples
+  Augmenting class 'Research & Academia': 17 -> 100 samples
+  Augmenting class 'Healthcare': 17 -> 100 samples
+  Augmenting class 'Tech': 17 -> 100 samples
+  Augmenting class 'Other': 17 -> 100 samples
+Augmented 71 new samples
+Step 2: Class balancing...
+Balancing 16 classes to 28 samples each...
+  Balanced 'Automotive': 25 -> 28 samples
+  Balanced 'Tech': 23 -> 28 samples
+  Balanced 'HR': 23 -> 28 samples
+  Balanced 'Finance': 22 -> 28 samples
+  Balanced 'Legal': 22 -> 28 samples
+  Balanced 'E-commerce': 21 -> 28 samples
+  Balanced 'Insurance': 21 -> 28 samples
+  Balanced 'Research & Academia': 21 -> 28 samples
+  Balanced 'Energy': 21 -> 28 samples
+  Balanced 'Government': 20 -> 28 samples
+  Balanced 'Media & Entertainment': 20 -> 28 samples
+  Balanced 'Healthcare': 20 -> 28 samples
+  Balanced 'Other': 20 -> 28 samples
+  Balanced 'Consulting': 19 -> 28 samples
+  Balanced 'Education': 17 -> 28 samples
+Balanced data from 343 to 448 samples
+Dataset enhanced: 272 -> 448 samples
+Enhanced dataset saved to: batchy-streamy/batch_2/data/enhanced_dataset.csv
+Training data: 358 samples
+Test data: 90 samples
+Batch 2 preparation complete!
+
+STEP 2: DRIFT-RESISTANT TRAINING
+Configuration loaded successfully from ci-config.yaml
+STARTING DRIFT-RESISTANT TRAINING PIPELINE
+==================================================
+Loaded enhanced training data: (358, 12)
+Auto-detected columns - Text: 'full_summary', Label: 'industry'
+Using text column: 'full_summary'
+Using label column: 'industry'
+Created drift-resistant features: (358, 800)
+Feature shape: (358, 800)
+Number of classes: 16
+Initialized 5 drift-resistant models:
+  logistic_regression
+  random_forest
+  decision_tree
+  neural_network
+  svm
+
+Creating 8 stable chunks from 358 samples...
+Class distribution: {np.int64(0): np.int64(23), np.int64(1): np.int64(23), np.int64(2): np.int64(22), np.int64(3): np.int64(22), np.int64(4): np.int64(22), np.int64(5): np.int64(23), np.int64(6): np.int64(22), np.int64(7): np.int64(22), np.int64(8): np.int64(22), np.int64(9): np.int64(22), np.int64(10): np.int64(22), np.int64(11): np.int64(23), np.int64(12): np.int64(22), np.int64(13): np.int64(23), np.int64(14): np.int64(23), np.int64(15): np.int64(22)}
+Chunk 1: 44 samples, 16 classes
+Chunk 2: 44 samples, 15 classes
+Chunk 3: 44 samples, 14 classes
+Chunk 4: 44 samples, 16 classes
+Chunk 5: 44 samples, 16 classes
+Chunk 6: 44 samples, 16 classes
+Chunk 7: 44 samples, 16 classes
+Chunk 8: 50 samples, 15 classes
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 1
+============================================================
+Warning: Chunk 1 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 1 ---
+  Val Accuracy: 0.2222, Val F1: 0.1481
+  Stability: 0.4744
+  New best chunk for logistic_regression: 1 (Adj. Score: 0.1956)
+
+--- Training RANDOM_FOREST on chunk 1 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.4783
+  New best chunk for random_forest: 1 (Adj. Score: 0.0478)
+
+--- Training DECISION_TREE on chunk 1 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.6393
+  New best chunk for decision_tree: 1 (Adj. Score: 0.0639)
+
+--- Training NEURAL_NETWORK on chunk 1 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9867
+  New best chunk for neural_network: 1 (Adj. Score: 0.1209)
+
+--- Training SVM on chunk 1 ---
+  Val Accuracy: 0.2222, Val F1: 0.1481
+  Stability: 0.7884
+  New best chunk for svm: 1 (Adj. Score: 0.2270)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 2
+============================================================
+Warning: Chunk 2 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 2 ---
+  Val Accuracy: 0.4444, Val F1: 0.4074
+  Stability: 0.6568
+  New best chunk for logistic_regression: 2 (Adj. Score: 0.4731)
+
+--- Training RANDOM_FOREST on chunk 2 ---
+  Val Accuracy: 0.2222, Val F1: 0.2037
+  Stability: 0.5166
+  New best chunk for random_forest: 2 (Adj. Score: 0.2554)
+
+--- Training DECISION_TREE on chunk 2 ---
+  Val Accuracy: 0.3333, Val F1: 0.2778
+  Stability: 0.7044
+  New best chunk for decision_tree: 2 (Adj. Score: 0.3482)
+
+--- Training NEURAL_NETWORK on chunk 2 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9923
+  New best chunk for neural_network: 2 (Adj. Score: 0.1215)
+
+--- Training SVM on chunk 2 ---
+  Val Accuracy: 0.2222, Val F1: 0.1481
+  Stability: 0.7977
+  New best chunk for svm: 2 (Adj. Score: 0.2279)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 3
+============================================================
+Warning: Chunk 3 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 3 ---
+  Val Accuracy: 0.7778, Val F1: 0.8148
+  Stability: 0.8697
+  New best chunk for logistic_regression: 3 (Adj. Score: 0.9018)
+
+--- Training RANDOM_FOREST on chunk 3 ---
+  Val Accuracy: 0.2222, Val F1: 0.2222
+  Stability: 0.5906
+  New best chunk for random_forest: 3 (Adj. Score: 0.2813)
+
+--- Training DECISION_TREE on chunk 3 ---
+  Val Accuracy: 0.1111, Val F1: 0.0370
+  Stability: 0.5039
+
+--- Training NEURAL_NETWORK on chunk 3 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.8868
+
+--- Training SVM on chunk 3 ---
+  Val Accuracy: 0.5556, Val F1: 0.5333
+  Stability: 0.8059
+  New best chunk for svm: 3 (Adj. Score: 0.6139)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 4
+============================================================
+Warning: Chunk 4 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 4 ---
+  Val Accuracy: 0.4444, Val F1: 0.4000
+  Stability: 0.6441
+
+--- Training RANDOM_FOREST on chunk 4 ---
+  Val Accuracy: 0.4444, Val F1: 0.3778
+  Stability: 0.6485
+  New best chunk for random_forest: 4 (Adj. Score: 0.4426)
+
+--- Training DECISION_TREE on chunk 4 ---
+  Val Accuracy: 0.2222, Val F1: 0.1389
+  Stability: 0.6928
+
+--- Training NEURAL_NETWORK on chunk 4 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9939
+
+--- Training SVM on chunk 4 ---
+  Val Accuracy: 0.4444, Val F1: 0.3333
+  Stability: 0.7478
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 5
+============================================================
+Warning: Chunk 5 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 5 ---
+  Val Accuracy: 0.3333, Val F1: 0.2407
+  Stability: 0.5633
+
+--- Training RANDOM_FOREST on chunk 5 ---
+  Val Accuracy: 0.2222, Val F1: 0.2222
+  Stability: 0.5561
+
+--- Training DECISION_TREE on chunk 5 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.6956
+
+--- Training NEURAL_NETWORK on chunk 5 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9927
+
+--- Training SVM on chunk 5 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.7121
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 6
+============================================================
+Warning: Chunk 6 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 6 ---
+  Val Accuracy: 0.4444, Val F1: 0.4074
+  Stability: 0.6924
+
+--- Training RANDOM_FOREST on chunk 6 ---
+  Val Accuracy: 0.3333, Val F1: 0.2852
+  Stability: 0.5978
+
+--- Training DECISION_TREE on chunk 6 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.7449
+
+--- Training NEURAL_NETWORK on chunk 6 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9890
+
+--- Training SVM on chunk 6 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.6696
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 7
+============================================================
+Warning: Chunk 7 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 7 ---
+  Val Accuracy: 0.4444, Val F1: 0.3333
+  Stability: 0.6384
+
+--- Training RANDOM_FOREST on chunk 7 ---
+  Val Accuracy: 0.2222, Val F1: 0.1481
+  Stability: 0.5530
+
+--- Training DECISION_TREE on chunk 7 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.7562
+
+--- Training NEURAL_NETWORK on chunk 7 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9891
+
+--- Training SVM on chunk 7 ---
+  Val Accuracy: 0.2222, Val F1: 0.2037
+  Stability: 0.6550
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 8
+============================================================
+Warning: Chunk 8 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 8 ---
+  Val Accuracy: 0.3000, Val F1: 0.2800
+  Stability: 0.6127
+
+--- Training RANDOM_FOREST on chunk 8 ---
+  Val Accuracy: 0.2000, Val F1: 0.2333
+  Stability: 0.5972
+
+--- Training DECISION_TREE on chunk 8 ---
+  Val Accuracy: 0.5000, Val F1: 0.4600
+  Stability: 0.8973
+  New best chunk for decision_tree: 8 (Adj. Score: 0.5497)
+
+--- Training NEURAL_NETWORK on chunk 8 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9936
+
+--- Training SVM on chunk 8 ---
+  Val Accuracy: 0.3000, Val F1: 0.3333
+  Stability: 0.9236
+Saved 40 chunk models
+
+==================================================
+FINDING BEST CHUNK MODELS
+==================================================
+logistic_regression  | Best chunk: 3 | f1_score: 0.8148
+random_forest        | Best chunk: 4 | f1_score: 0.3778
+decision_tree        | Best chunk: 8 | f1_score: 0.4600
+neural_network       | Best chunk: 2 | f1_score: 0.0222
+svm                  | Best chunk: 3 | f1_score: 0.5333
+
+==================================================
+CREATING DRIFT-RESISTANT ENSEMBLE MODEL
+==================================================
+logistic_regression  | Weight: 0.8422 | F1: 0.8148 | Stability: 0.8697
+random_forest        | Weight: 0.5131 | F1: 0.3778 | Stability: 0.6485
+decision_tree        | Weight: 0.6787 | F1: 0.4600 | Stability: 0.8973
+neural_network       | Weight: 0.5073 | F1: 0.0222 | Stability: 0.9923
+svm                  | Weight: 0.6696 | F1: 0.5333 | Stability: 0.8059
+Created ensemble with 5 models
+Ensemble model saved to: batchy-streamy/batch_2/best_models/ensemble_model.pkl
+
+DRIFT-RESISTANT TRAINING COMPLETED!
+   Models saved in: batchy-streamy/batch_2/models
+   Chunks processed: 8
+   Models trained: 5
+
+STEP 3: DRIFT ANALYSIS
+Simulating drift analysis...
+
+ITERATION EVALUATION:
+   Data Drift: 0.0533
+   Concept Drift: 0.0546
+   Combined Drift: 0.0788
+   Target Threshold: 0.0300
+   NEW BEST! (Previous best: 0.0788)
+   CONTINUING IMPROVEMENT...
+
+Completed 1/5 iterations
+
+ITERATION 2/5
+
+================================================================================
+ITERATION 2 - CONTINUOUS IMPROVEMENT CYCLE
+================================================================================
+
+STEP 1: DATA AUGMENTATION
+Configuration loaded from ci-config.yaml
+STARTING DATA AUGMENTATION PIPELINE
+==================================================
+Created batch structure: batchy-streamy/batch_3
+Found data at: balanced_dataset.csv
+Loaded data: (272, 12)
+Columns: ['created_at', 'title', 'industry', 'year', 'source_url', 'company', 'application_tags', 'tools_tags', 'extra_tags', 'techniques_tags', 'short_summary', 'full_summary']
+Detected - Text: 'full_summary', Label: 'industry'
+Cleaned data shape: (272, 12)
+Step 1: Text augmentation...
+Starting augmentation for 16 classes...
+  Augmenting class 'Finance': 17 -> 100 samples
+  Augmenting class 'Insurance': 17 -> 100 samples
+  Augmenting class 'Media & Entertainment': 17 -> 100 samples
+  Augmenting class 'Legal': 17 -> 100 samples
+  Augmenting class 'Government': 17 -> 100 samples
+  Augmenting class 'Automotive': 17 -> 100 samples
+  Augmenting class 'Telecommunications': 17 -> 100 samples
+  Augmenting class 'E-commerce': 17 -> 100 samples
+  Augmenting class 'Education': 17 -> 100 samples
+  Augmenting class 'Energy': 17 -> 100 samples
+  Augmenting class 'Consulting': 17 -> 100 samples
+  Augmenting class 'HR': 17 -> 100 samples
+  Augmenting class 'Research & Academia': 17 -> 100 samples
+  Augmenting class 'Healthcare': 17 -> 100 samples
+  Augmenting class 'Tech': 17 -> 100 samples
+  Augmenting class 'Other': 17 -> 100 samples
+Augmented 83 new samples
+Step 2: Class balancing...
+Balancing 16 classes to 25 samples each...
+  Balanced 'E-commerce': 24 -> 25 samples
+  Balanced 'Education': 24 -> 25 samples
+  Balanced 'Automotive': 24 -> 25 samples
+  Balanced 'Energy': 24 -> 25 samples
+  Balanced 'Research & Academia': 23 -> 25 samples
+  Balanced 'Finance': 23 -> 25 samples
+  Balanced 'Media & Entertainment': 22 -> 25 samples
+  Balanced 'Healthcare': 22 -> 25 samples
+  Balanced 'Tech': 22 -> 25 samples
+  Balanced 'Insurance': 21 -> 25 samples
+  Balanced 'Legal': 21 -> 25 samples
+  Balanced 'Consulting': 21 -> 25 samples
+  Balanced 'Government': 21 -> 25 samples
+  Balanced 'Telecommunications': 20 -> 25 samples
+  Balanced 'HR': 18 -> 25 samples
+Balanced data from 355 to 400 samples
+Dataset enhanced: 272 -> 400 samples
+Enhanced dataset saved to: batchy-streamy/batch_3/data/enhanced_dataset.csv
+Training data: 320 samples
+Test data: 80 samples
+Batch 3 preparation complete!
+
+STEP 2: DRIFT-RESISTANT TRAINING
+Configuration loaded successfully from ci-config.yaml
+STARTING DRIFT-RESISTANT TRAINING PIPELINE
+==================================================
+Loaded enhanced training data: (320, 12)
+Auto-detected columns - Text: 'full_summary', Label: 'industry'
+Using text column: 'full_summary'
+Using label column: 'industry'
+Created drift-resistant features: (320, 800)
+Feature shape: (320, 800)
+Number of classes: 16
+Initialized 5 drift-resistant models:
+  logistic_regression
+  random_forest
+  decision_tree
+  neural_network
+  svm
+
+Creating 8 stable chunks from 320 samples...
+Class distribution: {np.int64(0): np.int64(20), np.int64(1): np.int64(20), np.int64(2): np.int64(20), np.int64(3): np.int64(20), np.int64(4): np.int64(20), np.int64(5): np.int64(20), np.int64(6): np.int64(20), np.int64(7): np.int64(20), np.int64(8): np.int64(20), np.int64(9): np.int64(20), np.int64(10): np.int64(20), np.int64(11): np.int64(20), np.int64(12): np.int64(20), np.int64(13): np.int64(20), np.int64(14): np.int64(20), np.int64(15): np.int64(20)}
+Chunk 1: 40 samples, 15 classes
+Chunk 2: 40 samples, 14 classes
+Chunk 3: 40 samples, 16 classes
+Chunk 4: 40 samples, 14 classes
+Chunk 5: 40 samples, 14 classes
+Chunk 6: 40 samples, 14 classes
+Chunk 7: 40 samples, 15 classes
+Chunk 8: 40 samples, 15 classes
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 1
+============================================================
+Warning: Chunk 1 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 1 ---
+  Val Accuracy: 0.2500, Val F1: 0.1875
+  Stability: 0.5705
+  New best chunk for logistic_regression: 1 (Adj. Score: 0.2445)
+
+--- Training RANDOM_FOREST on chunk 1 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.4572
+  New best chunk for random_forest: 1 (Adj. Score: 0.0457)
+
+--- Training DECISION_TREE on chunk 1 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.6844
+  New best chunk for decision_tree: 1 (Adj. Score: 0.1934)
+
+--- Training NEURAL_NETWORK on chunk 1 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9928
+  New best chunk for neural_network: 1 (Adj. Score: 0.0993)
+
+--- Training SVM on chunk 1 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.7269
+  New best chunk for svm: 1 (Adj. Score: 0.1977)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 2
+============================================================
+Warning: Chunk 2 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 2 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.5388
+
+--- Training RANDOM_FOREST on chunk 2 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.5343
+  New best chunk for random_forest: 2 (Adj. Score: 0.1784)
+
+--- Training DECISION_TREE on chunk 2 ---
+  Val Accuracy: 0.1250, Val F1: 0.0500
+  Stability: 0.5323
+
+--- Training NEURAL_NETWORK on chunk 2 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9156
+
+--- Training SVM on chunk 2 ---
+  Val Accuracy: 0.1250, Val F1: 0.0500
+  Stability: 0.5645
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 3
+============================================================
+Warning: Chunk 3 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 3 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.5264
+
+--- Training RANDOM_FOREST on chunk 3 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.5305
+
+--- Training DECISION_TREE on chunk 3 ---
+  Val Accuracy: 0.1250, Val F1: 0.0833
+  Stability: 0.7544
+
+--- Training NEURAL_NETWORK on chunk 3 ---
+  Val Accuracy: 0.1250, Val F1: 0.0278
+  Stability: 0.9957
+  New best chunk for neural_network: 3 (Adj. Score: 0.1273)
+
+--- Training SVM on chunk 3 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.4984
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 4
+============================================================
+Warning: Chunk 4 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 4 ---
+  Val Accuracy: 0.5000, Val F1: 0.4375
+  Stability: 0.6224
+  New best chunk for logistic_regression: 4 (Adj. Score: 0.4997)
+
+--- Training RANDOM_FOREST on chunk 4 ---
+  Val Accuracy: 0.2500, Val F1: 0.2917
+  Stability: 0.5546
+  New best chunk for random_forest: 4 (Adj. Score: 0.3471)
+
+--- Training DECISION_TREE on chunk 4 ---
+  Val Accuracy: 0.3750, Val F1: 0.4167
+  Stability: 0.8311
+  New best chunk for decision_tree: 4 (Adj. Score: 0.4998)
+
+--- Training NEURAL_NETWORK on chunk 4 ---
+  Val Accuracy: 0.1250, Val F1: 0.0278
+  Stability: 0.9178
+
+--- Training SVM on chunk 4 ---
+  Val Accuracy: 0.2500, Val F1: 0.2083
+  Stability: 0.5062
+  New best chunk for svm: 4 (Adj. Score: 0.2589)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 5
+============================================================
+Warning: Chunk 5 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 5 ---
+  Val Accuracy: 0.3750, Val F1: 0.4167
+  Stability: 0.7051
+
+--- Training RANDOM_FOREST on chunk 5 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.5248
+
+--- Training DECISION_TREE on chunk 5 ---
+  Val Accuracy: 0.1250, Val F1: 0.0417
+  Stability: 0.7281
+
+--- Training NEURAL_NETWORK on chunk 5 ---
+  Val Accuracy: 0.1250, Val F1: 0.0417
+  Stability: 0.9670
+  New best chunk for neural_network: 5 (Adj. Score: 0.1384)
+
+--- Training SVM on chunk 5 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.7905
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 6
+============================================================
+Warning: Chunk 6 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 6 ---
+  Val Accuracy: 0.1250, Val F1: 0.0500
+  Stability: 0.4518
+
+--- Training RANDOM_FOREST on chunk 6 ---
+  Val Accuracy: 0.1250, Val F1: 0.0500
+  Stability: 0.5074
+
+--- Training DECISION_TREE on chunk 6 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.7263
+
+--- Training NEURAL_NETWORK on chunk 6 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9884
+
+--- Training SVM on chunk 6 ---
+  Val Accuracy: 0.1250, Val F1: 0.0417
+  Stability: 0.4871
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 7
+============================================================
+Warning: Chunk 7 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 7 ---
+  Val Accuracy: 0.2500, Val F1: 0.2083
+  Stability: 0.5887
+
+--- Training RANDOM_FOREST on chunk 7 ---
+  Val Accuracy: 0.2500, Val F1: 0.2083
+  Stability: 0.5701
+
+--- Training DECISION_TREE on chunk 7 ---
+  Val Accuracy: 0.2500, Val F1: 0.2500
+  Stability: 0.8524
+
+--- Training NEURAL_NETWORK on chunk 7 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9956
+
+--- Training SVM on chunk 7 ---
+  Val Accuracy: 0.3750, Val F1: 0.2361
+  Stability: 0.8960
+  New best chunk for svm: 7 (Adj. Score: 0.3257)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 8
+============================================================
+Warning: Chunk 8 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 8 ---
+  Val Accuracy: 0.3750, Val F1: 0.3333
+  Stability: 0.6500
+
+--- Training RANDOM_FOREST on chunk 8 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.5491
+
+--- Training DECISION_TREE on chunk 8 ---
+  Val Accuracy: 0.1250, Val F1: 0.0625
+  Stability: 0.7386
+
+--- Training NEURAL_NETWORK on chunk 8 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9789
+
+--- Training SVM on chunk 8 ---
+  Val Accuracy: 0.2500, Val F1: 0.2500
+  Stability: 0.8966
+  New best chunk for svm: 8 (Adj. Score: 0.3397)
+Saved 40 chunk models
+
+==================================================
+FINDING BEST CHUNK MODELS
+==================================================
+logistic_regression  | Best chunk: 4 | f1_score: 0.4375
+random_forest        | Best chunk: 4 | f1_score: 0.2917
+decision_tree        | Best chunk: 4 | f1_score: 0.4167
+neural_network       | Best chunk: 5 | f1_score: 0.0417
+svm                  | Best chunk: 8 | f1_score: 0.2500
+
+==================================================
+CREATING DRIFT-RESISTANT ENSEMBLE MODEL
+==================================================
+logistic_regression  | Weight: 0.5300 | F1: 0.4375 | Stability: 0.6224
+random_forest        | Weight: 0.4232 | F1: 0.2917 | Stability: 0.5546
+decision_tree        | Weight: 0.6239 | F1: 0.4167 | Stability: 0.8311
+neural_network       | Weight: 0.5043 | F1: 0.0417 | Stability: 0.9670
+svm                  | Weight: 0.5733 | F1: 0.2500 | Stability: 0.8966
+Created ensemble with 5 models
+Ensemble model saved to: batchy-streamy/batch_3/best_models/ensemble_model.pkl
+
+DRIFT-RESISTANT TRAINING COMPLETED!
+   Models saved in: batchy-streamy/batch_3/models
+   Chunks processed: 8
+   Models trained: 5
+
+STEP 3: DRIFT ANALYSIS
+Simulating drift analysis...
+
+ITERATION EVALUATION:
+   Data Drift: 0.0705
+   Concept Drift: 0.0318
+   Combined Drift: 0.0633
+   Target Threshold: 0.0300
+   NEW BEST! (Previous best: 0.0633)
+   CONTINUING IMPROVEMENT...
+
+Completed 2/5 iterations
+
+ITERATION 3/5
+
+================================================================================
+ITERATION 3 - CONTINUOUS IMPROVEMENT CYCLE
+================================================================================
+
+STEP 1: DATA AUGMENTATION
+Configuration loaded from ci-config.yaml
+STARTING DATA AUGMENTATION PIPELINE
+==================================================
+Created batch structure: batchy-streamy/batch_4
+Found data at: balanced_dataset.csv
+Loaded data: (272, 12)
+Columns: ['created_at', 'title', 'industry', 'year', 'source_url', 'company', 'application_tags', 'tools_tags', 'extra_tags', 'techniques_tags', 'short_summary', 'full_summary']
+Detected - Text: 'full_summary', Label: 'industry'
+Cleaned data shape: (272, 12)
+Step 1: Text augmentation...
+Starting augmentation for 16 classes...
+  Augmenting class 'Finance': 17 -> 100 samples
+  Augmenting class 'Insurance': 17 -> 100 samples
+  Augmenting class 'Media & Entertainment': 17 -> 100 samples
+  Augmenting class 'Legal': 17 -> 100 samples
+  Augmenting class 'Government': 17 -> 100 samples
+  Augmenting class 'Automotive': 17 -> 100 samples
+  Augmenting class 'Telecommunications': 17 -> 100 samples
+  Augmenting class 'E-commerce': 17 -> 100 samples
+  Augmenting class 'Education': 17 -> 100 samples
+  Augmenting class 'Energy': 17 -> 100 samples
+  Augmenting class 'Consulting': 17 -> 100 samples
+  Augmenting class 'HR': 17 -> 100 samples
+  Augmenting class 'Research & Academia': 17 -> 100 samples
+  Augmenting class 'Healthcare': 17 -> 100 samples
+  Augmenting class 'Tech': 17 -> 100 samples
+  Augmenting class 'Other': 17 -> 100 samples
+Augmented 73 new samples
+Step 2: Class balancing...
+Balancing 16 classes to 26 samples each...
+  Balanced 'Government': 25 -> 26 samples
+  Balanced 'E-commerce': 23 -> 26 samples
+  Balanced 'Insurance': 23 -> 26 samples
+  Balanced 'Education': 23 -> 26 samples
+  Balanced 'HR': 23 -> 26 samples
+  Balanced 'Legal': 22 -> 26 samples
+  Balanced 'Media & Entertainment': 21 -> 26 samples
+  Balanced 'Finance': 21 -> 26 samples
+  Balanced 'Consulting': 21 -> 26 samples
+  Balanced 'Healthcare': 20 -> 26 samples
+  Balanced 'Telecommunications': 20 -> 26 samples
+  Balanced 'Tech': 20 -> 26 samples
+  Balanced 'Research & Academia': 20 -> 26 samples
+  Balanced 'Automotive': 19 -> 26 samples
+  Balanced 'Energy': 18 -> 26 samples
+Balanced data from 345 to 416 samples
+Dataset enhanced: 272 -> 416 samples
+Enhanced dataset saved to: batchy-streamy/batch_4/data/enhanced_dataset.csv
+Training data: 332 samples
+Test data: 84 samples
+Batch 4 preparation complete!
+
+STEP 2: DRIFT-RESISTANT TRAINING
+Configuration loaded successfully from ci-config.yaml
+STARTING DRIFT-RESISTANT TRAINING PIPELINE
+==================================================
+Loaded enhanced training data: (332, 12)
+Auto-detected columns - Text: 'full_summary', Label: 'industry'
+Using text column: 'full_summary'
+Using label column: 'industry'
+Created drift-resistant features: (332, 800)
+Feature shape: (332, 800)
+Number of classes: 16
+Initialized 5 drift-resistant models:
+  logistic_regression
+  random_forest
+  decision_tree
+  neural_network
+  svm
+
+Creating 8 stable chunks from 332 samples...
+Class distribution: {np.int64(0): np.int64(21), np.int64(1): np.int64(21), np.int64(2): np.int64(21), np.int64(3): np.int64(20), np.int64(4): np.int64(21), np.int64(5): np.int64(21), np.int64(6): np.int64(20), np.int64(7): np.int64(21), np.int64(8): np.int64(21), np.int64(9): np.int64(21), np.int64(10): np.int64(20), np.int64(11): np.int64(21), np.int64(12): np.int64(20), np.int64(13): np.int64(21), np.int64(14): np.int64(21), np.int64(15): np.int64(21)}
+Chunk 1: 41 samples, 16 classes
+Chunk 2: 41 samples, 15 classes
+Chunk 3: 41 samples, 16 classes
+Chunk 4: 41 samples, 14 classes
+Chunk 5: 41 samples, 15 classes
+Chunk 6: 41 samples, 15 classes
+Chunk 7: 41 samples, 14 classes
+Chunk 8: 45 samples, 13 classes
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 1
+============================================================
+Warning: Chunk 1 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 1 ---
+  Val Accuracy: 0.5556, Val F1: 0.6000
+  Stability: 0.7505
+  New best chunk for logistic_regression: 1 (Adj. Score: 0.6750)
+
+--- Training RANDOM_FOREST on chunk 1 ---
+  Val Accuracy: 0.2222, Val F1: 0.2222
+  Stability: 0.5448
+  New best chunk for random_forest: 1 (Adj. Score: 0.2767)
+
+--- Training DECISION_TREE on chunk 1 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.7228
+  New best chunk for decision_tree: 1 (Adj. Score: 0.1834)
+
+--- Training NEURAL_NETWORK on chunk 1 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9794
+  New best chunk for neural_network: 1 (Adj. Score: 0.1202)
+
+--- Training SVM on chunk 1 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.8917
+  New best chunk for svm: 1 (Adj. Score: 0.2003)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 2
+============================================================
+Warning: Chunk 2 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 2 ---
+  Val Accuracy: 0.3333, Val F1: 0.2963
+  Stability: 0.5970
+
+--- Training RANDOM_FOREST on chunk 2 ---
+  Val Accuracy: 0.3333, Val F1: 0.2889
+  Stability: 0.6392
+  New best chunk for random_forest: 2 (Adj. Score: 0.3528)
+
+--- Training DECISION_TREE on chunk 2 ---
+  Val Accuracy: 0.2222, Val F1: 0.2593
+  Stability: 0.6668
+  New best chunk for decision_tree: 2 (Adj. Score: 0.3259)
+
+--- Training NEURAL_NETWORK on chunk 2 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9872
+
+--- Training SVM on chunk 2 ---
+  Val Accuracy: 0.3333, Val F1: 0.3704
+  Stability: 0.7478
+  New best chunk for svm: 2 (Adj. Score: 0.4451)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 3
+============================================================
+Warning: Chunk 3 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 3 ---
+  Val Accuracy: 0.2222, Val F1: 0.2593
+  Stability: 0.6111
+
+--- Training RANDOM_FOREST on chunk 3 ---
+  Val Accuracy: 0.1111, Val F1: 0.1481
+  Stability: 0.5427
+
+--- Training DECISION_TREE on chunk 3 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.5802
+
+--- Training NEURAL_NETWORK on chunk 3 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9928
+
+--- Training SVM on chunk 3 ---
+  Val Accuracy: 0.2222, Val F1: 0.2037
+  Stability: 0.8927
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 4
+============================================================
+Warning: Chunk 4 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 4 ---
+  Val Accuracy: 0.3333, Val F1: 0.3148
+  Stability: 0.6463
+
+--- Training RANDOM_FOREST on chunk 4 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.4471
+
+--- Training DECISION_TREE on chunk 4 ---
+  Val Accuracy: 0.2222, Val F1: 0.2222
+  Stability: 0.7187
+
+--- Training NEURAL_NETWORK on chunk 4 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9983
+
+--- Training SVM on chunk 4 ---
+  Val Accuracy: 0.2222, Val F1: 0.1556
+  Stability: 0.5341
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 5
+============================================================
+Warning: Chunk 5 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 5 ---
+  Val Accuracy: 0.2222, Val F1: 0.2222
+  Stability: 0.5699
+
+--- Training RANDOM_FOREST on chunk 5 ---
+  Val Accuracy: 0.3333, Val F1: 0.2407
+  Stability: 0.5784
+
+--- Training DECISION_TREE on chunk 5 ---
+  Val Accuracy: 0.2222, Val F1: 0.2222
+  Stability: 0.7474
+
+--- Training NEURAL_NETWORK on chunk 5 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9884
+
+--- Training SVM on chunk 5 ---
+  Val Accuracy: 0.2222, Val F1: 0.1556
+  Stability: 0.6968
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 6
+============================================================
+Warning: Chunk 6 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 6 ---
+  Val Accuracy: 0.3333, Val F1: 0.3333
+  Stability: 0.6413
+
+--- Training RANDOM_FOREST on chunk 6 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.5396
+
+--- Training DECISION_TREE on chunk 6 ---
+  Val Accuracy: 0.1111, Val F1: 0.0741
+  Stability: 0.5922
+
+--- Training NEURAL_NETWORK on chunk 6 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9929
+  New best chunk for neural_network: 6 (Adj. Score: 0.1215)
+
+--- Training SVM on chunk 6 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.5403
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 7
+============================================================
+Warning: Chunk 7 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 7 ---
+  Val Accuracy: 0.2222, Val F1: 0.1852
+  Stability: 0.4578
+
+--- Training RANDOM_FOREST on chunk 7 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.4344
+
+--- Training DECISION_TREE on chunk 7 ---
+  Val Accuracy: 0.1111, Val F1: 0.0444
+  Stability: 0.7071
+
+--- Training NEURAL_NETWORK on chunk 7 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9767
+
+--- Training SVM on chunk 7 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.5315
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 8
+============================================================
+Warning: Chunk 8 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 8 ---
+  Val Accuracy: 0.3333, Val F1: 0.3333
+  Stability: 0.6207
+
+--- Training RANDOM_FOREST on chunk 8 ---
+  Val Accuracy: 0.2222, Val F1: 0.2593
+  Stability: 0.5623
+
+--- Training DECISION_TREE on chunk 8 ---
+  Val Accuracy: 0.3333, Val F1: 0.3333
+  Stability: 0.7906
+  New best chunk for decision_tree: 8 (Adj. Score: 0.4124)
+
+--- Training NEURAL_NETWORK on chunk 8 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9836
+
+--- Training SVM on chunk 8 ---
+  Val Accuracy: 0.4444, Val F1: 0.3444
+  Stability: 0.8874
+Saved 40 chunk models
+
+==================================================
+FINDING BEST CHUNK MODELS
+==================================================
+logistic_regression  | Best chunk: 1 | f1_score: 0.6000
+random_forest        | Best chunk: 2 | f1_score: 0.2889
+decision_tree        | Best chunk: 8 | f1_score: 0.3333
+neural_network       | Best chunk: 6 | f1_score: 0.0222
+svm                  | Best chunk: 2 | f1_score: 0.3704
+
+==================================================
+CREATING DRIFT-RESISTANT ENSEMBLE MODEL
+==================================================
+logistic_regression  | Weight: 0.6752 | F1: 0.6000 | Stability: 0.7505
+random_forest        | Weight: 0.4640 | F1: 0.2889 | Stability: 0.6392
+decision_tree        | Weight: 0.5619 | F1: 0.3333 | Stability: 0.7906
+neural_network       | Weight: 0.5076 | F1: 0.0222 | Stability: 0.9929
+svm                  | Weight: 0.5591 | F1: 0.3704 | Stability: 0.7478
+Created ensemble with 5 models
+Ensemble model saved to: batchy-streamy/batch_4/best_models/ensemble_model.pkl
+
+DRIFT-RESISTANT TRAINING COMPLETED!
+   Models saved in: batchy-streamy/batch_4/models
+   Chunks processed: 8
+   Models trained: 5
+
+STEP 3: DRIFT ANALYSIS
+Simulating drift analysis...
+
+ITERATION EVALUATION:
+   Data Drift: 0.0857
+   Concept Drift: 0.0567
+   Combined Drift: 0.0679
+   Target Threshold: 0.0300
+   CONTINUING IMPROVEMENT...
+
+Completed 3/5 iterations
+
+ITERATION 4/5
+
+================================================================================
+ITERATION 4 - CONTINUOUS IMPROVEMENT CYCLE
+================================================================================
+
+STEP 1: DATA AUGMENTATION
+Configuration loaded from ci-config.yaml
+STARTING DATA AUGMENTATION PIPELINE
+==================================================
+Created batch structure: batchy-streamy/batch_5
+Found data at: balanced_dataset.csv
+Loaded data: (272, 12)
+Columns: ['created_at', 'title', 'industry', 'year', 'source_url', 'company', 'application_tags', 'tools_tags', 'extra_tags', 'techniques_tags', 'short_summary', 'full_summary']
+Detected - Text: 'full_summary', Label: 'industry'
+Cleaned data shape: (272, 12)
+Step 1: Text augmentation...
+Starting augmentation for 16 classes...
+  Augmenting class 'Finance': 17 -> 100 samples
+  Augmenting class 'Insurance': 17 -> 100 samples
+  Augmenting class 'Media & Entertainment': 17 -> 100 samples
+  Augmenting class 'Legal': 17 -> 100 samples
+  Augmenting class 'Government': 17 -> 100 samples
+  Augmenting class 'Automotive': 17 -> 100 samples
+  Augmenting class 'Telecommunications': 17 -> 100 samples
+  Augmenting class 'E-commerce': 17 -> 100 samples
+  Augmenting class 'Education': 17 -> 100 samples
+  Augmenting class 'Energy': 17 -> 100 samples
+  Augmenting class 'Consulting': 17 -> 100 samples
+  Augmenting class 'HR': 17 -> 100 samples
+  Augmenting class 'Research & Academia': 17 -> 100 samples
+  Augmenting class 'Healthcare': 17 -> 100 samples
+  Augmenting class 'Tech': 17 -> 100 samples
+  Augmenting class 'Other': 17 -> 100 samples
+Augmented 71 new samples
+Step 2: Class balancing...
+Balancing 16 classes to 26 samples each...
+  Balanced 'Finance': 24 -> 26 samples
+  Balanced 'Education': 23 -> 26 samples
+  Balanced 'Government': 23 -> 26 samples
+  Balanced 'Other': 23 -> 26 samples
+  Balanced 'Legal': 22 -> 26 samples
+  Balanced 'E-commerce': 21 -> 26 samples
+  Balanced 'Insurance': 21 -> 26 samples
+  Balanced 'Tech': 21 -> 26 samples
+  Balanced 'Research & Academia': 21 -> 26 samples
+  Balanced 'Automotive': 21 -> 26 samples
+  Balanced 'Consulting': 21 -> 26 samples
+  Balanced 'Energy': 20 -> 26 samples
+  Balanced 'Media & Entertainment': 19 -> 26 samples
+  Balanced 'Telecommunications': 19 -> 26 samples
+  Balanced 'Healthcare': 18 -> 26 samples
+Balanced data from 343 to 416 samples
+Dataset enhanced: 272 -> 416 samples
+Enhanced dataset saved to: batchy-streamy/batch_5/data/enhanced_dataset.csv
+Training data: 332 samples
+Test data: 84 samples
+Batch 5 preparation complete!
+
+STEP 2: DRIFT-RESISTANT TRAINING
+Configuration loaded successfully from ci-config.yaml
+STARTING DRIFT-RESISTANT TRAINING PIPELINE
+==================================================
+Loaded enhanced training data: (332, 12)
+Auto-detected columns - Text: 'full_summary', Label: 'industry'
+Using text column: 'full_summary'
+Using label column: 'industry'
+Created drift-resistant features: (332, 800)
+Feature shape: (332, 800)
+Number of classes: 16
+Initialized 5 drift-resistant models:
+  logistic_regression
+  random_forest
+  decision_tree
+  neural_network
+  svm
+
+Creating 8 stable chunks from 332 samples...
+Class distribution: {np.int64(0): np.int64(21), np.int64(1): np.int64(21), np.int64(2): np.int64(21), np.int64(3): np.int64(20), np.int64(4): np.int64(21), np.int64(5): np.int64(21), np.int64(6): np.int64(20), np.int64(7): np.int64(21), np.int64(8): np.int64(21), np.int64(9): np.int64(21), np.int64(10): np.int64(20), np.int64(11): np.int64(21), np.int64(12): np.int64(20), np.int64(13): np.int64(21), np.int64(14): np.int64(21), np.int64(15): np.int64(21)}
+Chunk 1: 41 samples, 16 classes
+Chunk 2: 41 samples, 15 classes
+Chunk 3: 41 samples, 16 classes
+Chunk 4: 41 samples, 14 classes
+Chunk 5: 41 samples, 15 classes
+Chunk 6: 41 samples, 15 classes
+Chunk 7: 41 samples, 14 classes
+Chunk 8: 45 samples, 13 classes
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 1
+============================================================
+Warning: Chunk 1 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 1 ---
+  Val Accuracy: 0.3333, Val F1: 0.3889
+  Stability: 0.6921
+  New best chunk for logistic_regression: 1 (Adj. Score: 0.4581)
+
+--- Training RANDOM_FOREST on chunk 1 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.5334
+  New best chunk for random_forest: 1 (Adj. Score: 0.1644)
+
+--- Training DECISION_TREE on chunk 1 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.7275
+  New best chunk for decision_tree: 1 (Adj. Score: 0.0727)
+
+--- Training NEURAL_NETWORK on chunk 1 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9794
+  New best chunk for neural_network: 1 (Adj. Score: 0.1202)
+
+--- Training SVM on chunk 1 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.9406
+  New best chunk for svm: 1 (Adj. Score: 0.2052)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 2
+============================================================
+Warning: Chunk 2 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 2 ---
+  Val Accuracy: 0.3333, Val F1: 0.3333
+  Stability: 0.5915
+
+--- Training RANDOM_FOREST on chunk 2 ---
+  Val Accuracy: 0.1111, Val F1: 0.1481
+  Stability: 0.5377
+  New best chunk for random_forest: 2 (Adj. Score: 0.2019)
+
+--- Training DECISION_TREE on chunk 2 ---
+  Val Accuracy: 0.3333, Val F1: 0.2778
+  Stability: 0.6975
+  New best chunk for decision_tree: 2 (Adj. Score: 0.3475)
+
+--- Training NEURAL_NETWORK on chunk 2 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9872
+
+--- Training SVM on chunk 2 ---
+  Val Accuracy: 0.1111, Val F1: 0.1481
+  Stability: 0.6830
+  New best chunk for svm: 2 (Adj. Score: 0.2165)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 3
+============================================================
+Warning: Chunk 3 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 3 ---
+  Val Accuracy: 0.3333, Val F1: 0.3148
+  Stability: 0.6038
+
+--- Training RANDOM_FOREST on chunk 3 ---
+  Val Accuracy: 0.3333, Val F1: 0.3333
+  Stability: 0.6622
+  New best chunk for random_forest: 3 (Adj. Score: 0.3996)
+
+--- Training DECISION_TREE on chunk 3 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.7719
+
+--- Training NEURAL_NETWORK on chunk 3 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9928
+
+--- Training SVM on chunk 3 ---
+  Val Accuracy: 0.2222, Val F1: 0.2222
+  Stability: 0.9080
+  New best chunk for svm: 3 (Adj. Score: 0.3130)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 4
+============================================================
+Warning: Chunk 4 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 4 ---
+  Val Accuracy: 0.5556, Val F1: 0.5185
+  Stability: 0.7400
+  New best chunk for logistic_regression: 4 (Adj. Score: 0.5925)
+
+--- Training RANDOM_FOREST on chunk 4 ---
+  Val Accuracy: 0.2222, Val F1: 0.2037
+  Stability: 0.5600
+
+--- Training DECISION_TREE on chunk 4 ---
+  Val Accuracy: 0.2222, Val F1: 0.1481
+  Stability: 0.6129
+
+--- Training NEURAL_NETWORK on chunk 4 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9983
+
+--- Training SVM on chunk 4 ---
+  Val Accuracy: 0.4444, Val F1: 0.3889
+  Stability: 0.6813
+  New best chunk for svm: 4 (Adj. Score: 0.4570)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 5
+============================================================
+Warning: Chunk 5 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 5 ---
+  Val Accuracy: 0.2222, Val F1: 0.1852
+  Stability: 0.5322
+
+--- Training RANDOM_FOREST on chunk 5 ---
+  Val Accuracy: 0.2222, Val F1: 0.1296
+  Stability: 0.5417
+
+--- Training DECISION_TREE on chunk 5 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.6170
+
+--- Training NEURAL_NETWORK on chunk 5 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9884
+
+--- Training SVM on chunk 5 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.6411
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 6
+============================================================
+Warning: Chunk 6 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 6 ---
+  Val Accuracy: 0.2222, Val F1: 0.1852
+  Stability: 0.5680
+
+--- Training RANDOM_FOREST on chunk 6 ---
+  Val Accuracy: 0.2222, Val F1: 0.1667
+  Stability: 0.5327
+
+--- Training DECISION_TREE on chunk 6 ---
+  Val Accuracy: 0.1111, Val F1: 0.0370
+  Stability: 0.6867
+
+--- Training NEURAL_NETWORK on chunk 6 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9929
+  New best chunk for neural_network: 6 (Adj. Score: 0.1215)
+
+--- Training SVM on chunk 6 ---
+  Val Accuracy: 0.2222, Val F1: 0.1852
+  Stability: 0.5480
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 7
+============================================================
+Warning: Chunk 7 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 7 ---
+  Val Accuracy: 0.4444, Val F1: 0.4074
+  Stability: 0.6443
+
+--- Training RANDOM_FOREST on chunk 7 ---
+  Val Accuracy: 0.2222, Val F1: 0.2222
+  Stability: 0.5804
+
+--- Training DECISION_TREE on chunk 7 ---
+  Val Accuracy: 0.2222, Val F1: 0.1630
+  Stability: 0.7501
+
+--- Training NEURAL_NETWORK on chunk 7 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9767
+
+--- Training SVM on chunk 7 ---
+  Val Accuracy: 0.1111, Val F1: 0.1111
+  Stability: 0.6220
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 8
+============================================================
+Warning: Chunk 8 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 8 ---
+  Val Accuracy: 0.2222, Val F1: 0.2222
+  Stability: 0.5816
+
+--- Training RANDOM_FOREST on chunk 8 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.4750
+
+--- Training DECISION_TREE on chunk 8 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.6165
+
+--- Training NEURAL_NETWORK on chunk 8 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9340
+
+--- Training SVM on chunk 8 ---
+  Val Accuracy: 0.3333, Val F1: 0.2963
+  Stability: 0.7804
+Saved 40 chunk models
+
+==================================================
+FINDING BEST CHUNK MODELS
+==================================================
+logistic_regression  | Best chunk: 4 | f1_score: 0.5185
+random_forest        | Best chunk: 3 | f1_score: 0.3333
+decision_tree        | Best chunk: 2 | f1_score: 0.2778
+neural_network       | Best chunk: 6 | f1_score: 0.0222
+svm                  | Best chunk: 4 | f1_score: 0.3889
+
+==================================================
+CREATING DRIFT-RESISTANT ENSEMBLE MODEL
+==================================================
+logistic_regression  | Weight: 0.6293 | F1: 0.5185 | Stability: 0.7400
+random_forest        | Weight: 0.4978 | F1: 0.3333 | Stability: 0.6622
+decision_tree        | Weight: 0.4876 | F1: 0.2778 | Stability: 0.6975
+neural_network       | Weight: 0.5076 | F1: 0.0222 | Stability: 0.9929
+svm                  | Weight: 0.5351 | F1: 0.3889 | Stability: 0.6813
+Created ensemble with 5 models
+Ensemble model saved to: batchy-streamy/batch_5/best_models/ensemble_model.pkl
+
+DRIFT-RESISTANT TRAINING COMPLETED!
+   Models saved in: batchy-streamy/batch_5/models
+   Chunks processed: 8
+   Models trained: 5
+
+STEP 3: DRIFT ANALYSIS
+Simulating drift analysis...
+
+ITERATION EVALUATION:
+   Data Drift: 0.0862
+   Concept Drift: 0.0375
+   Combined Drift: 0.0421
+   Target Threshold: 0.0300
+   NEW BEST! (Previous best: 0.0421)
+   CONTINUING IMPROVEMENT...
+
+Completed 4/5 iterations
+
+ITERATION 5/5
+
+================================================================================
+ITERATION 5 - CONTINUOUS IMPROVEMENT CYCLE
+================================================================================
+
+STEP 1: DATA AUGMENTATION
+Configuration loaded from ci-config.yaml
+STARTING DATA AUGMENTATION PIPELINE
+==================================================
+Created batch structure: batchy-streamy/batch_6
+Found data at: balanced_dataset.csv
+Loaded data: (272, 12)
+Columns: ['created_at', 'title', 'industry', 'year', 'source_url', 'company', 'application_tags', 'tools_tags', 'extra_tags', 'techniques_tags', 'short_summary', 'full_summary']
+Detected - Text: 'full_summary', Label: 'industry'
+Cleaned data shape: (272, 12)
+Step 1: Text augmentation...
+Starting augmentation for 16 classes...
+  Augmenting class 'Finance': 17 -> 100 samples
+  Augmenting class 'Insurance': 17 -> 100 samples
+  Augmenting class 'Media & Entertainment': 17 -> 100 samples
+  Augmenting class 'Legal': 17 -> 100 samples
+  Augmenting class 'Government': 17 -> 100 samples
+  Augmenting class 'Automotive': 17 -> 100 samples
+  Augmenting class 'Telecommunications': 17 -> 100 samples
+  Augmenting class 'E-commerce': 17 -> 100 samples
+  Augmenting class 'Education': 17 -> 100 samples
+  Augmenting class 'Energy': 17 -> 100 samples
+  Augmenting class 'Consulting': 17 -> 100 samples
+  Augmenting class 'HR': 17 -> 100 samples
+  Augmenting class 'Research & Academia': 17 -> 100 samples
+  Augmenting class 'Healthcare': 17 -> 100 samples
+  Augmenting class 'Tech': 17 -> 100 samples
+  Augmenting class 'Other': 17 -> 100 samples
+Augmented 57 new samples
+Step 2: Class balancing...
+Balancing 16 classes to 24 samples each...
+  Balanced 'Finance': 22 -> 24 samples
+  Balanced 'Consulting': 22 -> 24 samples
+  Balanced 'Telecommunications': 21 -> 24 samples
+  Balanced 'Healthcare': 21 -> 24 samples
+  Balanced 'Energy': 21 -> 24 samples
+  Balanced 'E-commerce': 21 -> 24 samples
+  Balanced 'Legal': 20 -> 24 samples
+  Balanced 'HR': 20 -> 24 samples
+  Balanced 'Education': 19 -> 24 samples
+  Balanced 'Automotive': 19 -> 24 samples
+  Balanced 'Tech': 19 -> 24 samples
+  Balanced 'Research & Academia': 19 -> 24 samples
+  Balanced 'Other': 19 -> 24 samples
+  Balanced 'Government': 18 -> 24 samples
+Balanced data from 329 to 384 samples
+Dataset enhanced: 272 -> 384 samples
+Enhanced dataset saved to: batchy-streamy/batch_6/data/enhanced_dataset.csv
+Training data: 307 samples
+Test data: 77 samples
+Batch 6 preparation complete!
+
+STEP 2: DRIFT-RESISTANT TRAINING
+Configuration loaded successfully from ci-config.yaml
+STARTING DRIFT-RESISTANT TRAINING PIPELINE
+==================================================
+Loaded enhanced training data: (307, 12)
+Auto-detected columns - Text: 'full_summary', Label: 'industry'
+Using text column: 'full_summary'
+Using label column: 'industry'
+Created drift-resistant features: (307, 800)
+Feature shape: (307, 800)
+Number of classes: 16
+Initialized 5 drift-resistant models:
+  logistic_regression
+  random_forest
+  decision_tree
+  neural_network
+  svm
+
+Creating 8 stable chunks from 307 samples...
+Class distribution: {np.int64(0): np.int64(20), np.int64(1): np.int64(20), np.int64(2): np.int64(19), np.int64(3): np.int64(19), np.int64(4): np.int64(19), np.int64(5): np.int64(20), np.int64(6): np.int64(19), np.int64(7): np.int64(19), np.int64(8): np.int64(19), np.int64(9): np.int64(19), np.int64(10): np.int64(19), np.int64(11): np.int64(19), np.int64(12): np.int64(19), np.int64(13): np.int64(19), np.int64(14): np.int64(19), np.int64(15): np.int64(19)}
+Chunk 1: 38 samples, 15 classes
+Chunk 2: 38 samples, 15 classes
+Chunk 3: 38 samples, 14 classes
+Chunk 4: 38 samples, 15 classes
+Chunk 5: 38 samples, 15 classes
+Chunk 6: 38 samples, 14 classes
+Chunk 7: 38 samples, 15 classes
+Chunk 8: 41 samples, 16 classes
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 1
+============================================================
+Warning: Chunk 1 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 1 ---
+  Val Accuracy: 0.3750, Val F1: 0.2917
+  Stability: 0.6242
+  New best chunk for logistic_regression: 1 (Adj. Score: 0.3541)
+
+--- Training RANDOM_FOREST on chunk 1 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.5454
+  New best chunk for random_forest: 1 (Adj. Score: 0.1795)
+
+--- Training DECISION_TREE on chunk 1 ---
+  Val Accuracy: 0.1250, Val F1: 0.0417
+  Stability: 0.7251
+  New best chunk for decision_tree: 1 (Adj. Score: 0.1142)
+
+--- Training NEURAL_NETWORK on chunk 1 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9915
+  New best chunk for neural_network: 1 (Adj. Score: 0.0992)
+
+--- Training SVM on chunk 1 ---
+  Val Accuracy: 0.2500, Val F1: 0.1250
+  Stability: 0.8305
+  New best chunk for svm: 1 (Adj. Score: 0.2080)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 2
+============================================================
+Warning: Chunk 2 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 2 ---
+  Val Accuracy: 0.6250, Val F1: 0.6250
+  Stability: 0.7842
+  New best chunk for logistic_regression: 2 (Adj. Score: 0.7034)
+
+--- Training RANDOM_FOREST on chunk 2 ---
+  Val Accuracy: 0.2500, Val F1: 0.2500
+  Stability: 0.6124
+  New best chunk for random_forest: 2 (Adj. Score: 0.3112)
+
+--- Training DECISION_TREE on chunk 2 ---
+  Val Accuracy: 0.3750, Val F1: 0.3750
+  Stability: 0.9185
+  New best chunk for decision_tree: 2 (Adj. Score: 0.4668)
+
+--- Training NEURAL_NETWORK on chunk 2 ---
+  Val Accuracy: 0.1250, Val F1: 0.0278
+  Stability: 0.9829
+  New best chunk for neural_network: 2 (Adj. Score: 0.1261)
+
+--- Training SVM on chunk 2 ---
+  Val Accuracy: 0.2500, Val F1: 0.2917
+  Stability: 0.8720
+  New best chunk for svm: 2 (Adj. Score: 0.3789)
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 3
+============================================================
+Warning: Chunk 3 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 3 ---
+  Val Accuracy: 0.5000, Val F1: 0.4583
+  Stability: 0.7034
+
+--- Training RANDOM_FOREST on chunk 3 ---
+  Val Accuracy: 0.3750, Val F1: 0.3333
+  Stability: 0.6531
+  New best chunk for random_forest: 3 (Adj. Score: 0.3986)
+
+--- Training DECISION_TREE on chunk 3 ---
+  Val Accuracy: 0.3750, Val F1: 0.3750
+  Stability: 0.7396
+
+--- Training NEURAL_NETWORK on chunk 3 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9615
+
+--- Training SVM on chunk 3 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.7609
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 4
+============================================================
+Warning: Chunk 4 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 4 ---
+  Val Accuracy: 0.3750, Val F1: 0.2708
+  Stability: 0.5839
+
+--- Training RANDOM_FOREST on chunk 4 ---
+  Val Accuracy: 0.3750, Val F1: 0.3333
+  Stability: 0.6323
+
+--- Training DECISION_TREE on chunk 4 ---
+  Val Accuracy: 0.2500, Val F1: 0.2083
+  Stability: 0.7005
+
+--- Training NEURAL_NETWORK on chunk 4 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9946
+
+--- Training SVM on chunk 4 ---
+  Val Accuracy: 0.1250, Val F1: 0.0278
+  Stability: 0.7802
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 5
+============================================================
+Warning: Chunk 5 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 5 ---
+  Val Accuracy: 0.3750, Val F1: 0.3333
+  Stability: 0.5761
+
+--- Training RANDOM_FOREST on chunk 5 ---
+  Val Accuracy: 0.1250, Val F1: 0.0833
+  Stability: 0.4915
+
+--- Training DECISION_TREE on chunk 5 ---
+  Val Accuracy: 0.1250, Val F1: 0.1250
+  Stability: 0.6257
+
+--- Training NEURAL_NETWORK on chunk 5 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9915
+
+--- Training SVM on chunk 5 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.7975
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 6
+============================================================
+Warning: Chunk 6 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 6 ---
+  Val Accuracy: 0.5000, Val F1: 0.5000
+  Stability: 0.7217
+
+--- Training RANDOM_FOREST on chunk 6 ---
+  Val Accuracy: 0.2500, Val F1: 0.2667
+  Stability: 0.6163
+
+--- Training DECISION_TREE on chunk 6 ---
+  Val Accuracy: 0.1250, Val F1: 0.1000
+  Stability: 0.5978
+
+--- Training NEURAL_NETWORK on chunk 6 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.9989
+
+--- Training SVM on chunk 6 ---
+  Val Accuracy: 0.0000, Val F1: 0.0000
+  Stability: 0.7861
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 7
+============================================================
+Warning: Chunk 7 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 7 ---
+  Val Accuracy: 0.5000, Val F1: 0.5417
+  Stability: 0.6936
+
+--- Training RANDOM_FOREST on chunk 7 ---
+  Val Accuracy: 0.2500, Val F1: 0.2917
+  Stability: 0.5750
+
+--- Training DECISION_TREE on chunk 7 ---
+  Val Accuracy: 0.2500, Val F1: 0.2917
+  Stability: 0.7537
+
+--- Training NEURAL_NETWORK on chunk 7 ---
+  Val Accuracy: 0.2500, Val F1: 0.1000
+  Stability: 0.9614
+  New best chunk for neural_network: 7 (Adj. Score: 0.1961)
+
+--- Training SVM on chunk 7 ---
+  Val Accuracy: 0.1250, Val F1: 0.0500
+  Stability: 0.7413
+
+============================================================
+TRAINING DRIFT-RESISTANT MODELS ON CHUNK 8
+============================================================
+Warning: Chunk 8 has class with only 1 sample. Using regular split.
+
+--- Training LOGISTIC_REGRESSION on chunk 8 ---
+  Val Accuracy: 0.3333, Val F1: 0.2963
+  Stability: 0.6097
+
+--- Training RANDOM_FOREST on chunk 8 ---
+  Val Accuracy: 0.2222, Val F1: 0.1852
+  Stability: 0.5727
+
+--- Training DECISION_TREE on chunk 8 ---
+  Val Accuracy: 0.4444, Val F1: 0.3519
+  Stability: 0.8012
+
+--- Training NEURAL_NETWORK on chunk 8 ---
+  Val Accuracy: 0.1111, Val F1: 0.0222
+  Stability: 0.9919
+
+--- Training SVM on chunk 8 ---
+  Val Accuracy: 0.3333, Val F1: 0.1926
+  Stability: 0.8830
+Saved 40 chunk models
+
+==================================================
+FINDING BEST CHUNK MODELS
+==================================================
+logistic_regression  | Best chunk: 2 | f1_score: 0.6250
+random_forest        | Best chunk: 3 | f1_score: 0.3333
+decision_tree        | Best chunk: 2 | f1_score: 0.3750
+neural_network       | Best chunk: 7 | f1_score: 0.1000
+svm                  | Best chunk: 2 | f1_score: 0.2917
+
+==================================================
+CREATING DRIFT-RESISTANT ENSEMBLE MODEL
+==================================================
+logistic_regression  | Weight: 0.7046 | F1: 0.6250 | Stability: 0.7842
+random_forest        | Weight: 0.4932 | F1: 0.3333 | Stability: 0.6531
+decision_tree        | Weight: 0.6467 | F1: 0.3750 | Stability: 0.9185
+neural_network       | Weight: 0.5307 | F1: 0.1000 | Stability: 0.9614
+svm                  | Weight: 0.5818 | F1: 0.2917 | Stability: 0.8720
+Created ensemble with 5 models
+Ensemble model saved to: batchy-streamy/batch_6/best_models/ensemble_model.pkl
+
+DRIFT-RESISTANT TRAINING COMPLETED!
+   Models saved in: batchy-streamy/batch_6/models
+   Chunks processed: 8
+   Models trained: 5
+
+STEP 3: DRIFT ANALYSIS
+Simulating drift analysis...
+
+ITERATION EVALUATION:
+   Data Drift: 0.0993
+   Concept Drift: 0.0413
+   Combined Drift: 0.0635
+   Target Threshold: 0.0300
+   CONTINUING IMPROVEMENT...
+
+Completed 5/5 iterations
+
+================================================================================
+CONTINUOUS IMPROVEMENT FINAL REPORT
+================================================================================
+
+ITERATION HISTORY:
+   Iteration  1 | Data: 0.0533 | Concept: 0.0546 | Combined: 0.0788
+   Iteration  2 | Data: 0.0705 | Concept: 0.0318 | Combined: 0.0633
+   Iteration  3 | Data: 0.0857 | Concept: 0.0567 | Combined: 0.0679
+   Iteration  4 | Data: 0.0862 | Concept: 0.0375 | Combined: 0.0421
+   Iteration  5 | Data: 0.0993 | Concept: 0.0413 | Combined: 0.0635
+
+BEST ITERATION: 4
+   Best Combined Drift Score: 0.0421
+   Location: batchy-streamy/batch_5
+   Training Samples: 332
+   Models Trained: 5
+
+IMPROVEMENT SUMMARY:
+   Initial Drift: 0.0788
+   Final Drift: 0.0635
+   Improvement: 0.0153 (19.4%)
+   CONTINUE: Target not reached after 5 iterations
+
+PIPELINE COMPLETED!
+   Best Iteration: 4
+   Best Drift Score: 0.0421
+   Best Model Location: batchy-streamy/batch_5
+best_iteration_measure  =====batchy-streamy/batch_5
+
+
+Batch path: batchy-streamy/batch_5
+Test data path: batchy-streamy/batch_5/data/test_data.csv
+Starting real drift measurement
+Loading trained chunk models...
+Preparing fixed test dataset...
+Test data: 84 samples, 16 classes
+Validating all chunk models on fixed test data...
+Testing logistic_regression...
+Testing random_forest...
+Testing decision_tree...
+Testing neural_network...
+Testing svm...
+Finding best model across chunks...
+Generating comprehensive drift report...
+
+================================================================================
+REAL DRIFT VALIDATION REPORT
+================================================================================
+
+OVERALL DRIFT SUMMARY:
+   logistic_regression  | Avg Drift: -0.0238 | Std:  0.1020
+   random_forest        | Avg Drift: -0.0813 | Std:  0.0804
+   decision_tree        | Avg Drift: -0.0367 | Std:  0.0966
+   neural_network       | Avg Drift: -0.0223 | Std:  0.0484
+   svm                  | Avg Drift: -0.0357 | Std:  0.0968
+
+   Overall Average Drift: -0.0400
+   Overall Drift Range: [-0.2143, 0.1151]
+
+BEST PERFORMING MODEL:
+   Model: logistic_regression (Chunk 4)
+   Test Accuracy: 0.4405
+   Accuracy Drift: 0.1151
+   Throughput: 166410.8 pred/sec
+   Latency: 0.4 ms
+   Reliability: 1.0000
+
+DRIFT ANALYSIS:
+   Low Drift (<0.05): 9 models
+   Medium Drift (0.05-0.15): 27 models
+   High Drift (≥0.15): 4 models
+
+RECOMMENDATIONS:
+   Warning: Significant performance drop on test data
+   Excellent: Model predictions are very consistent
+Running SHAP analysis on best model...
+
+SHAP ANALYSIS for logistic_regression:
+SHAP analysis completed and saved to PNG.

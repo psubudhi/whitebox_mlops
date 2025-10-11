@@ -1,0 +1,29 @@
+{
+  "original_size": 925,
+  "balanced_size": 272,
+  "balancing_method": "combined_sampling",
+  "imbalance_ratio_before": 70.28571428571429,
+  "imbalance_ratio_after": 1.0,
+  "label_column": "industry",
+  "total_classes": 16,
+  "created_at": "2025-10-08T09:46:53.277053",
+  "dataset_source": "zenml/llmops-database",
+  "class_distribution_after": {
+    "Finance": 17,
+    "Insurance": 17,
+    "Media & Entertainment": 17,
+    "Legal": 17,
+    "Government": 17,
+    "Automotive": 17,
+    "Telecommunications": 17,
+    "E-commerce": 17,
+    "Education": 17,
+    "Energy": 17,
+    "Consulting": 17,
+    "HR": 17,
+    "Research & Academia": 17,
+    "Healthcare": 17,
+    "Tech": 17,
+    "Other": 17
+  }
+}
