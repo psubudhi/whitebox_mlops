@@ -1,0 +1,82 @@
+[
+  {
+    "example_id": 1,
+    "original_prediction": "Technology",
+    "target_prediction": "Finance",
+    "changes_required": [
+      {
+        "feature": "tfidf_machine",
+        "from": 0.85,
+        "to": 0.2,
+        "change": -76.5,
+        "importance": "high"
+      },
+      {
+        "feature": "tfidf_financial",
+        "from": 0.15,
+        "to": 0.75,
+        "change": 400.0,
+        "importance": "high"
+      },
+      {
+        "feature": "year",
+        "from": 2023,
+        "to": 2021,
+        "change": -2,
+        "importance": "medium"
+      },
+      {
+        "feature": "company_size",
+        "from": "large",
+        "to": "medium",
+        "change": "categorical",
+        "importance": "low"
+      }
+    ],
+    "confidence_change": {
+      "from": 0.78,
+      "to": 0.82
+    },
+    "explanation": "To change from Technology to Finance, reduce machine-related terms and increase financial terminology"
+  },
+  {
+    "example_id": 2,
+    "original_prediction": "Technology",
+    "target_prediction": "Finance",
+    "changes_required": [
+      {
+        "feature": "tfidf_machine",
+        "from": 0.85,
+        "to": 0.2,
+        "change": -76.5,
+        "importance": "high"
+      },
+      {
+        "feature": "tfidf_financial",
+        "from": 0.15,
+        "to": 0.75,
+        "change": 400.0,
+        "importance": "high"
+      },
+      {
+        "feature": "year",
+        "from": 2023,
+        "to": 2021,
+        "change": -2,
+        "importance": "medium"
+      },
+      {
+        "feature": "company_size",
+        "from": "large",
+        "to": "medium",
+        "change": "categorical",
+        "importance": "low"
+      }
+    ],
+    "confidence_change": {
+      "from": 0.78,
+      "to": 0.82
+    },
+    "explanation": "To change from Technology to Finance, reduce machine-related terms and increase financial terminology"
+  }
+]

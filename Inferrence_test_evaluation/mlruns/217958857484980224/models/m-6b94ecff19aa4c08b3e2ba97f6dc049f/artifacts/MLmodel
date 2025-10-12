@@ -1,0 +1,22 @@
+artifact_path: file:///D:/LJMU/FinalThesisi_todo/6-Oct/mlruns/217958857484980224/models/m-6b94ecff19aa4c08b3e2ba97f6dc049f/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.0
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.7.1
+mlflow_version: 3.3.2
+model_id: m-6b94ecff19aa4c08b3e2ba97f6dc049f
+model_size_bytes: 3169
+model_uuid: m-6b94ecff19aa4c08b3e2ba97f6dc049f
+prompts: null
+run_id: e52cce8b63a64665b213e8ecca65da09
+utc_time_created: '2025-10-06 16:16:22.080503'

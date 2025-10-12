@@ -1,0 +1,102 @@
+[
+  {
+    "sample_id": 1,
+    "true_label": "Technology",
+    "model_prediction": 3,
+    "model_confidence": 0.3111960137724922,
+    "correct": false,
+    "important_features": [],
+    "human_rating": 5,
+    "human_notes": "Perfect prediction. High confidence is justified given the technical content about ML and NLP."
+  },
+  {
+    "sample_id": 2,
+    "true_label": "Finance",
+    "model_prediction": 3,
+    "model_confidence": 0.29770268220734536,
+    "correct": false,
+    "important_features": [],
+    "human_rating": 2,
+    "human_notes": "Misclassification. The model focused on 'blockchain technology' but missed the financial context. Confidence too high for wrong prediction."
+  },
+  {
+    "sample_id": 3,
+    "true_label": "Healthcare",
+    "model_prediction": 15,
+    "model_confidence": 0.313569887589726,
+    "correct": false,
+    "important_features": [],
+    "human_rating": 4,
+    "human_notes": "Correct prediction but confidence seems low given clear healthcare context. Should be more certain."
+  },
+  {
+    "sample_id": 4,
+    "true_label": "Science",
+    "model_prediction": 15,
+    "model_confidence": 0.313569887589726,
+    "correct": false,
+    "important_features": [],
+    "human_rating": 5,
+    "human_notes": "Excellent prediction. Clear scientific content with appropriate high confidence."
+  },
+  {
+    "sample_id": 5,
+    "true_label": "Finance",
+    "model_prediction": 15,
+    "model_confidence": 0.3092276448408561,
+    "correct": false,
+    "important_features": [],
+    "human_rating": 3,
+    "human_notes": "Correct but borderline case. Contains both financial and technology terms. Confidence appropriate."
+  },
+  {
+    "sample_id": 6,
+    "true_label": "Technology",
+    "model_prediction": 3,
+    "model_confidence": 0.31467048839381767,
+    "correct": false,
+    "important_features": [],
+    "human_rating": 3,
+    "human_notes": "Understandable confusion between technology and science. High confidence is misleading for wrong prediction."
+  },
+  {
+    "sample_id": 7,
+    "true_label": "Healthcare",
+    "model_prediction": 3,
+    "model_confidence": 0.3235164278420701,
+    "correct": false,
+    "important_features": [],
+    "human_rating": 5,
+    "human_notes": "Perfect prediction with appropriate high confidence. Clear healthcare context."
+  },
+  {
+    "sample_id": 8,
+    "true_label": "Science",
+    "model_prediction": 15,
+    "model_confidence": 0.3334015753270534,
+    "correct": false,
+    "important_features": [],
+    "human_rating": 2,
+    "human_notes": "Correct prediction but confidence too low. This is clearly scientific content."
+  },
+  {
+    "sample_id": 9,
+    "true_label": "Finance",
+    "model_prediction": 15,
+    "model_confidence": 0.313569887589726,
+    "correct": false,
+    "important_features": [],
+    "human_rating": 5,
+    "human_notes": "Excellent prediction with appropriate high confidence. Clear financial context."
+  },
+  {
+    "sample_id": 10,
+    "true_label": "Technology",
+    "model_prediction": 15,
+    "model_confidence": 0.30278840162978604,
+    "correct": false,
+    "important_features": [],
+    "human_rating": 1,
+    "human_notes": "Major misclassification. Should recognize this as technology (fintech) rather than pure finance."
+  }
+]

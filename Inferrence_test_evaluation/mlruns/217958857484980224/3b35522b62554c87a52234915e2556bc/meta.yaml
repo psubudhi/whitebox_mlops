@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/LJMU/FinalThesisi_todo/6-Oct/mlruns/217958857484980224/3b35522b62554c87a52234915e2556bc/artifacts
+end_time: 1759769000036
+entry_point_name: ''
+experiment_id: '217958857484980224'
+lifecycle_stage: active
+run_id: 3b35522b62554c87a52234915e2556bc
+run_name: Pipeline_Run_20251006_221304
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759768984518
+status: 3
+tags: []
+user_id: hp

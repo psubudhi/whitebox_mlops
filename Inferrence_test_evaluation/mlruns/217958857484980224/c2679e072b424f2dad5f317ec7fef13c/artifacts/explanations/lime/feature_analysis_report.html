@@ -1,0 +1,369 @@
+
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>LIME Explanation with All Features</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 40px; }
+                    h1, h2 { color: #333; }
+                    .feature-section { margin: 20px 0; }
+                    .feature-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                        gap: 15px;
+                        margin: 20px 0;
+                    }
+                    .feature-card {
+                        padding: 15px;
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        border-left: 4px solid #667eea;
+                    }
+                    .feature-name { font-weight: bold; color: #333; }
+                    .feature-type { color: #666; font-size: 12px; }
+                    .feature-index { color: #999; font-size: 11px; }
+                    .summary-stats {
+                        background: #e3f2fd;
+                        padding: 20px;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                    }
+                    .stat-item { margin: 5px 0; }
+                </style>
+            </head>
+            <body>
+                <h1> LIME Feature Analysis Report</h1>
+                <p>Generated on 2025-10-06 21:46:35</p>
+                
+                <div class="summary-stats">
+                    <h2>Feature Statistics</h2>
+                    <div class="stat-item"><strong>Total Features:</strong> 100</div>
+                    <div class="stat-item"><strong>Feature Types:</strong> TF-IDF and Numerical</div>
+                    <div class="stat-item"><strong>Data Version:</strong> 20251006_214523</div>
+                </div>
+                
+                <h2>All Feature Names</h2>
+                <div class="feature-grid">
+            
+                <div class="feature-card">
+                    <div class="feature-index">#1</div>
+                    <div class="feature-name">accuracy</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#2</div>
+                    <div class="feature-name">agent</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#3</div>
+                    <div class="feature-name">agents</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#4</div>
+                    <div class="feature-name">ai</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#5</div>
+                    <div class="feature-name">analysis</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#6</div>
+                    <div class="feature-name">applications</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#7</div>
+                    <div class="feature-name">approach</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#8</div>
+                    <div class="feature-name">architecture</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#9</div>
+                    <div class="feature-name">automated</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#10</div>
+                    <div class="feature-name">based</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#11</div>
+                    <div class="feature-name">building</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#12</div>
+                    <div class="feature-name">business</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#13</div>
+                    <div class="feature-name">capabilities</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#14</div>
+                    <div class="feature-name">case</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#15</div>
+                    <div class="feature-name">case study</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#16</div>
+                    <div class="feature-name">cases</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#17</div>
+                    <div class="feature-name">challenges</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#18</div>
+                    <div class="feature-name">company</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#19</div>
+                    <div class="feature-name">complex</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#20</div>
+                    <div class="feature-name">comprehensive</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#21</div>
+                    <div class="feature-name">considerations</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#22</div>
+                    <div class="feature-name">content</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#23</div>
+                    <div class="feature-name">context</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#24</div>
+                    <div class="feature-name">cost</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#25</div>
+                    <div class="feature-name">critical</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#26</div>
+                    <div class="feature-name">customer</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#27</div>
+                    <div class="feature-name">data</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#28</div>
+                    <div class="feature-name">demonstrates</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#29</div>
+                    <div class="feature-name">deployment</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#30</div>
+                    <div class="feature-name">developed</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#31</div>
+                    <div class="feature-name">development</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#32</div>
+                    <div class="feature-name">different</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#33</div>
+                    <div class="feature-name">engineering</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#34</div>
+                    <div class="feature-name">enterprise</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#35</div>
+                    <div class="feature-name">evaluation</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#36</div>
+                    <div class="feature-name">existing</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#37</div>
+                    <div class="feature-name">feedback</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#38</div>
+                    <div class="feature-name">generation</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#39</div>
+                    <div class="feature-name">handling</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#40</div>
+                    <div class="feature-name">human</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#41</div>
+                    <div class="feature-name">implementation</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#42</div>
+                    <div class="feature-name">implemented</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#43</div>
+                    <div class="feature-name">importance</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#44</div>
+                    <div class="feature-name">including</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#45</div>
+                    <div class="feature-name">infrastructure</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#46</div>
+                    <div class="feature-name">insights</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#47</div>
+                    <div class="feature-name">integration</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#48</div>
+                    <div class="feature-name">key</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#49</div>
+                    <div class="feature-name">knowledge</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-index">#50</div>
+                    <div class="feature-name">language</div>
+                    <div class="feature-type">Numerical</div>
+                </div>
+                
+                </div>
+                
+                <div class="feature-section">
+                    <h2>Feature Categories</h2>
+                    <ul>
+                        <li><strong>TF-IDF Features:</strong> Text-based features from short_summary field</li>
+                        <li><strong>Numerical Features:</strong> Structured data features (year, etc.)</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-section">
+                    <h2>How to Interpret LIME Results</h2>
+                    <p>LIME (Local Interpretable Model-agnostic Explanations) shows which features were most influential for each prediction:</p>
+                    <ul>
+                        <li><span style="color: green; font-weight: bold;">Positive values</span>: Features that supported the prediction</li>
+                        <li><span style="color: red; font-weight: bold;">Negative values</span>: Features that opposed the prediction</li>
+                        <li><strong>Magnitude</strong>: How strongly the feature influenced the prediction</li>
+                    </ul>
+                </div>
+            </body>
+            </html>
+            

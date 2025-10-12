@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/LJMU/FinalThesisi_todo/6-Oct/mlruns/217958857484980224/4df9bea32ef44dcb837cdeb96c696614/artifacts
+end_time: 1759767421001
+entry_point_name: ''
+experiment_id: '217958857484980224'
+lifecycle_stage: active
+run_id: 4df9bea32ef44dcb837cdeb96c696614
+run_name: resilient-whale-307
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759767419894
+status: 3
+tags: []
+user_id: hp

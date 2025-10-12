@@ -1,0 +1,10 @@
+artifact_location: file:///D:/LJMU/FinalThesisi_todo/6-Oct/mlruns/217958857484980224/models/m-293e46cb519549299ed826486953f7be/artifacts
+creation_timestamp: 1759771045453
+experiment_id: '217958857484980224'
+last_updated_timestamp: 1759771049915
+model_id: m-293e46cb519549299ed826486953f7be
+model_type: null
+name: model
+source_run_id: 5ab8302b2d14450988868534f9be5510
+status: 2
+status_message: null

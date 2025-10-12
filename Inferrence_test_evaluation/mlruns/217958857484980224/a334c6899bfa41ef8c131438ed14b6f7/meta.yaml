@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/LJMU/FinalThesisi_todo/6-Oct/mlruns/217958857484980224/a334c6899bfa41ef8c131438ed14b6f7/artifacts
+end_time: 1759767357932
+entry_point_name: ''
+experiment_id: '217958857484980224'
+lifecycle_stage: active
+run_id: a334c6899bfa41ef8c131438ed14b6f7
+run_name: logistic_chunk_009
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759767355415
+status: 3
+tags: []
+user_id: hp

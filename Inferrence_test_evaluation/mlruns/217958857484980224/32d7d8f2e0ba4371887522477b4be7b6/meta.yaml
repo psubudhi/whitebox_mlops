@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/LJMU/FinalThesisi_todo/6-Oct/mlruns/217958857484980224/32d7d8f2e0ba4371887522477b4be7b6/artifacts
+end_time: 1759771083437
+entry_point_name: ''
+experiment_id: '217958857484980224'
+lifecycle_stage: active
+run_id: 32d7d8f2e0ba4371887522477b4be7b6
+run_name: decision_tree_chunk_002
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759771080915
+status: 3
+tags: []
+user_id: hp

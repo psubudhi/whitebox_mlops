@@ -1,0 +1,41 @@
+{
+  "model_accuracy": 0.0,
+  "original_accuracy": 0.7,
+  "agreement_rate": 0.0,
+  "avg_confidence_all": 0.3133212896782599,
+  "avg_confidence_correct": 0,
+  "avg_confidence_incorrect": 0.3133212896782599,
+  "confidence_gap": -0.3133212896782599,
+  "correct_predictions": 0,
+  "total_predictions": 10,
+  "class_performance": {
+    "Science": {
+      "samples": 2,
+      "accuracy": 0.0,
+      "correct": 0
+    },
+    "Healthcare": {
+      "samples": 2,
+      "accuracy": 0.0,
+      "correct": 0
+    },
+    "Technology": {
+      "samples": 3,
+      "accuracy": 0.0,
+      "correct": 0
+    },
+    "Finance": {
+      "samples": 3,
+      "accuracy": 0.0,
+      "correct": 0
+    }
+  },
+  "calibration_data": {
+    "0-0.5": {
+      "samples": 10,
+      "accuracy": 0.0,
+      "avg_confidence": 0.3133212896782599
+    }
+  },
+  "evaluation_timestamp": "2025-10-06T22:48:53.473797"
+}

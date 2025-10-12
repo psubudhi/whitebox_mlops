@@ -1,0 +1,14 @@
+{
+  "pipeline_status": "COMPLETED",
+  "pipeline_version": "4.0_thesis_whitebox",
+  "best_model": "logistic",
+  "best_score": 0.3746640855366872,
+  "total_chunks": 10,
+  "total_models_trained": 2,
+  "mlflow_experiment_runs": 2,
+  "batch_streaming": true,
+  "enhanced_interpretability": true,
+  "thesis_whitebox_validation": true,
+  "whitebox_compliance_status": "FAIL",
+  "completion_time": "2025-10-06 22:48:54"
+}
