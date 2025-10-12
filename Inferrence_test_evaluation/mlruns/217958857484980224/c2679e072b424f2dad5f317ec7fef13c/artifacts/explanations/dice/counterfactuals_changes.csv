@@ -1,9 +1,0 @@
-example_id,feature,from_value,to_value,change_percent,importance
-1,tfidf_machine,0.85,0.2,-76.5,high
-1,tfidf_financial,0.15,0.75,400.0,high
-1,year,2023,2021,-2,medium
-1,company_size,large,medium,categorical,low
-2,tfidf_machine,0.85,0.2,-76.5,high
-2,tfidf_financial,0.15,0.75,400.0,high
-2,year,2023,2021,-2,medium
-2,company_size,large,medium,categorical,low
