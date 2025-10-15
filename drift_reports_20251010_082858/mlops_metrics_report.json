@@ -1,0 +1,62 @@
+{
+  "timestamp": "2025-10-10T08:28:58.846597",
+  "analysis_date": "2025-10-10 08:28:58",
+  "model_statistics": {
+    "total_chunk_models": 40,
+    "model_types_analyzed": [
+      "decision_tree",
+      "logistic_regression",
+      "svm",
+      "neural_network"
+    ],
+    "best_models_available": [
+      "decision_tree",
+      "logistic_regression",
+      "svm",
+      "neural_network"
+    ],
+    "chunks_per_model": {
+      "decision_tree": 10,
+      "logistic_regression": 10,
+      "svm": 10,
+      "neural_network": 10
+    }
+  },
+  "performance_summary": {
+    "best_model": "logistic_regression",
+    "best_accuracy": 0.2727272727272727,
+    "best_f1_score": 0.18829059829059827,
+    "model_rankings": [
+      [
+        "logistic_regression",
+        0.18829059829059827
+      ],
+      [
+        "svm",
+        0.1551684088269454
+      ],
+      [
+        "decision_tree",
+        0.10122341426689252
+      ],
+      [
+        "neural_network",
+        0.004743083003952569
+      ]
+    ]
+  },
+  "drift_summary": {
+    "total_drift_occurrences": 5,
+    "drift_by_model": {
+      "decision_tree": 1,
+      "logistic_regression": 4,
+      "svm": 0,
+      "neural_network": 0
+    },
+    "most_drift_prone": "logistic_regression"
+  },
+  "recommendations": [
+    "Consider model retraining due to detected concept drift",
+    "Explore feature engineering to improve model performance"
+  ]
+}
