@@ -7,10 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1dVDmJE-smCLU2RDKcgS6Jjb4WRs-o1IT
 """
 
-from google.colab import drive
-drive.mount('/content/drive')
-
-chdir("/content/drive/MyDrive/LJMU_Data_XAI/data/aws-jupyter-notebooks/")
 
 """
 Chunk Trainer - Complete Machine Learning Pipeline

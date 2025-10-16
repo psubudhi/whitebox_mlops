@@ -7,10 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1LJf_bGIQxMBQ7957mFBqtvucmfmorXX0
 """
 
-from google.colab import drive
-drive.mount('/content/drive')
-import os
-os.chdir("/content/drive/MyDrive/LJMU_Data_XAI/data/aws-jupyter-notebooks/")
 
 """
 Drift Visualization Analysis

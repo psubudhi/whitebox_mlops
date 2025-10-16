@@ -140,6 +140,4 @@ if __name__ == "__main__":
         print("\nTest data creation failed!")
         exit(1)
 
-from google.colab import drive
-drive.mount('/content/drive')
 

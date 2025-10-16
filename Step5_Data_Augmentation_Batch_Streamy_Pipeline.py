@@ -7,10 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1WDt3PoFHW-qyGT6-RcY81PFjfs9IrBAh
 """
 
-from google.colab import drive
-drive.mount('/content/drive')
-import os
-os.chdir("/content/drive/MyDrive/LJMU_Data_XAI/data/aws-jupyter-notebooks/")
 
 """
 Machine Learning Model Configuration and Augmentation Pipeline
@@ -24,7 +20,7 @@ class balancing, and preparation of enhanced datasets for training/testing split
 Author: [Your Name]
 Date: 2025-10-11
 """
-
+import IPython.display as display
 import yaml
 
 # Configuration dictionary for ML models, feature engineering, training, drift detection,
@@ -2191,24 +2187,50 @@ def load_all_chunk_models(batch_path):
 
     return chunk_models
 
-def measure_throughput(model, X_test, n_runs=50):
+def measure_throughput(model, X_test, n_runs=50, min_duration=0.1):
     """
-    Measure prediction throughput (predictions per second).
+    Measure prediction throughput (predictions per second) with minimum duration guarantee.
 
     Args:
         model: Trained ML model with predict method.
         X_test: Feature matrix to predict on.
         n_runs (int): Number of iterations to run.
+        min_duration (float): Minimum measurement duration in seconds.
 
     Returns:
         float: Predictions per second.
     """
     batch_size = min(100, X_test.shape[0])
+    
+    # Ensure minimum duration by adjusting n_runs if needed
     start_time = time.time()
-    for _ in range(n_runs):
+    
+    # Initial test run to estimate speed
+    test_runs = 1
+    for _ in range(test_runs):
+        _ = model.predict(X_test[:batch_size])
+    
+    initial_duration = time.time() - start_time
+    
+    # Adjust n_runs to ensure minimum measurement duration
+    if initial_duration > 0:
+        estimated_runs_needed = max(n_runs, int(min_duration / initial_duration) + 1)
+    else:
+        estimated_runs_needed = n_runs * 10  # Conservative multiplier
+    
+    # Perform the actual measurement
+    start_time = time.time()
+    for _ in range(estimated_runs_needed):
         _ = model.predict(X_test[:batch_size])
     end_time = time.time()
-    return (n_runs * batch_size) / (end_time - start_time)
+    
+    duration = end_time - start_time
+    
+    # Avoid division by zero with a minimum duration
+    if duration <= 0:
+        duration = 0.001  # 1 millisecond minimum
+    
+    return (estimated_runs_needed * batch_size) / duration
 
 def measure_reliability(model, X_test, n_runs=5):
     """
